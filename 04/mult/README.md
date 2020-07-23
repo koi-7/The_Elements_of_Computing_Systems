@@ -17,8 +17,6 @@ def mult(r0, r1):
     Memory[mul]=0
 (LOOP)
     D=Memory[R1]
-    A=0
-    D=D-A
     A=END
     D;JEQ
     Memory[mul]=Memory[mul]+Memory[R0]
@@ -39,17 +37,16 @@ def mult(r0, r1):
 (LOOP)
     @R1
     D=M
-    @0
-    D=D-A
     @END
     D;JEQ
-    @mul
-    D=M
     @R0
-    D=D+M
+    D=M
+    @mul
+    M=M+D
     @1
+    D=A
     @R1
-    M=M-A
+    M=M-D
     @LOOP
     0;JMP
 (END)

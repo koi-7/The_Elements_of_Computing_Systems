@@ -21,17 +21,16 @@
 (LOOP)
     @R1
     D=M
-    @0
-    D=D-A
     @END
     D;JEQ
-    @mul
-    D=M
     @R0
-    D=D+M
+    D=M
+    @mul
+    M=M+D
     @1
+    D=A
     @R1
-    M=M-A
+    M=M-D
     @LOOP
     0;JMP
 (END)
