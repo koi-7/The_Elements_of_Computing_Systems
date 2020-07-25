@@ -43,69 +43,67 @@ CHIP CPU {
 
     // decode
     And16(a=instruction, b=instruction,
-          out[15]=loadAreg,
+          out[15]=inst,
           out[12]=a,
           out[11]=c1, out[10]=c2, out[9]=c3, out[8]=c4, out[7]=c5, out[6]=c6,
           out[5]=d1, out[4]=d2, out[3]=d3,
           out[2]=j1, out[1]=j2, out[0]=j3);
 
+    // writeM
+    And(a=inst, b=d3, out=writeM);
+
     // A register
-    Mux16(a=fromALU, b=instruction, sel=loadAreg, out=toAreg, out[0..14]=addressM);
-    ARegister(in=toAreg, load=d1, out=fromAreg);
+    Mux16(a=instruction, b=fromALU, sel=inst, out=toAreg);
+    Not(in=inst, out=notinst);
+    Or(a=notinst, b=d1, out=loadAreg);
+    ARegister(in=toAreg, load=loadAreg, out=fromAreg, out[0..14]=addressM);
+
+    // D register
+    And(a=inst, b=d2, out=loadDreg);
+    DRegister(in=fromALU, load=loadDreg, out=fromDreg);
 
     // ALU
     Mux16(a=fromAreg, b=inM, sel=a, out=toALU);
     ALU(x=fromDreg, y=toALU, zx=c1, nx=c2, zy=c3, ny=c4, f=c5, no=c6,
         out=fromALU, out=outM, zr=zr, ng=ng);
 
-    // D register
-    DRegister(in=fromALU, load=d2, out=fromDreg);
+    // No jump
+    Or(a=j1, b=j2, out=njump0);
+    Or(a=njump0, b=j3, out=njump1);
+    Not(in=njump1, out=njump2);
+    Or(a=notinst, b=njump2, out=PCinc);
 
-    // inc to PC (No jump)
-    Not(in=j1, out=notj1);
-    Not(in=j2, out=notj2);
-    Not(in=j3, out=notj3);
-    Not(in=zr, out=notzr);
-    Not(in=ng, out=notng);
+    // jump
+    Not(in=j1, out=nj1);
+    Not(in=j2, out=nj2);
+    Not(in=zr, out=nzr);
+    Not(in=ng, out=nng);
 
-    And(a=notj1, b=notj2, out=o0);
-    And(a=o0, b=notj3, out=PCinc);
+    And(a=nj1, b=j3, out=tmp0);     // JGT, JGE1
+    And(a=tmp0, b=nzr, out=tmp1);
+    And(a=tmp1, b=nng, out=jump0);
 
-    // load frag for PC
-    // JGT (out > 0)
-    And(a=notj1, b=notj2, out=o1);
-    And(a=j3, b=notzr, out=o2);
-    And(a=o1, b=o2, out=o3);
-    And(a=o3, b=notng, out=jgt);
-    // JEQ (out = 0)
-    And(a=notj1, b=j2, out=o4);
-    And(a=notj3, b=zr, out=o5);
-    And(a=o4, b=o5, out=o6);
-    And(a=o6, b=notng, out=jeq);
-    // JGE (out >= 0)
-    And(a=notj1, b=j2, out=o7);
-    And(a=j3, b=notng, out=o8);
-    And(a=o7, b=o8, out=jge);
-    // JLT (out < 0)
-    And(a=j1, b=notj2, out=o9);
-    And(a=notj3, b=notzr, out=o10);
-    And(a=o9, b=o10, out=o11);
-    And(a=o11, b=ng, out=jlt);
-    // JNE (out != 0)
-    And(a=j1, b=notj2, out=o12);
-    And(a=o12, b=j3, out=jne);
-    // JLE (out <= 0)
-    And(a=j1, b=j2, out=o13);
-    And(a=o13, b=notj3, out=jle);
-    // JGT (Jump)
-    And(a=j1, b=j2, out=o14);
-    And(a=o14, b=j3, out=jmp);
+    And(a=nj1, b=j2, out=tmp2);     // JEQ, JGE2
+    And(a=tmp2, b=zr, out=tmp3);
+    And(a=tmp3, b=nng, out=jump1);
 
-    Or8Way(in[0]=jgt, in[1]=jeq, in[2]=jge, in[3]=jlt,
-           in[4]=jne, in[5]=jle, in[6]=jmp, in[7]=false,
-           out=PCload);
+    And(a=j1, b=nj2, out=tmp4);     // JNE
+    And(a=tmp4, b=j3, out=tmp5);
+    And(a=tmp5, b=nzr, out=jump2);
 
+    And(a=j1, b=nzr, out=tmp6);     // JLT
+    And(a=tmp6, b=ng, out=jump3);
 
+    And(a=j1, b=j2, out=tmp7);      // JLE
+    Xor(a=zr, b=ng, out=tmp8);
+    And(a=tmp7, b=tmp8, out=jump4);
+
+    And(a=j1, b=j2, out=tmp9);      // Jump
+    And(a=tmp9, b=j3, out=jump5);
+
+    Or8Way(in[0]=jump0, in[1]=jump1, in[2]=jump2, in[3]=jump3, in[4]=jump4,
+           in[5]=jump5, in[6..7]=false, out=jump);
+    And(a=jump, b=inst, out=PCload);
 
     // PC
     PC(in=fromAreg, load=PCload, inc=PCinc, reset=reset, out[0..14]=pc);
