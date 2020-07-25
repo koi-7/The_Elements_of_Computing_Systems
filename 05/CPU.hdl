@@ -56,7 +56,7 @@ CHIP CPU {
           out[2]=j1, out[1]=j2, out[0]=j3);
 
     // writeM
-    And(a=inst, b=d3, out=writeM);
+    And(a=d3, b=d3, out=writeM);
 
     // A register
     Not(in=inst, out=notinst);
