@@ -41,8 +41,14 @@ CHIP CPU {
     PARTS:
     // Put your code here:
 
-    // decode
-    And16(a=instruction, b=instruction,
+    // 下準備
+    And16(a[0]=instruction[15], a[1]=instruction[15], a[2]=instruction[15],
+          a[3]=instruction[15], a[4]=instruction[15], a[5]=instruction[15],
+          a[6]=instruction[15], a[7]=instruction[15], a[8]=instruction[15],
+          a[9]=instruction[15], a[10]=instruction[15], a[11]=instruction[15],
+          a[12]=instruction[15], a[13]=instruction[15], a[14]=instruction[15],
+          a[15]=instruction[15],
+          b=instruction,
           out[15]=inst,
           out[12]=a,
           out[11]=c1, out[10]=c2, out[9]=c3, out[8]=c4, out[7]=c5, out[6]=c6,
@@ -53,25 +59,18 @@ CHIP CPU {
     And(a=inst, b=d3, out=writeM);
 
     // A register
-    Mux16(a=instruction, b=fromALU, sel=inst, out=toAreg);
     Not(in=inst, out=notinst);
+    Mux16(a=fromALU, b=instruction, sel=notinst, out=toAreg);
     Or(a=notinst, b=d1, out=loadAreg);
     ARegister(in=toAreg, load=loadAreg, out=fromAreg, out[0..14]=addressM);
 
     // D register
-    And(a=inst, b=d2, out=loadDreg);
-    DRegister(in=fromALU, load=loadDreg, out=fromDreg);
+    DRegister(in=fromALU, load=d2, out=fromDreg);
 
     // ALU
     Mux16(a=fromAreg, b=inM, sel=a, out=toALU);
     ALU(x=fromDreg, y=toALU, zx=c1, nx=c2, zy=c3, ny=c4, f=c5, no=c6,
         out=fromALU, out=outM, zr=zr, ng=ng);
-
-    // No jump
-    Or(a=j1, b=j2, out=njump0);
-    Or(a=njump0, b=j3, out=njump1);
-    Not(in=njump1, out=njump2);
-    Or(a=notinst, b=njump2, out=PCinc);
 
     // jump
     Not(in=j1, out=nj1);
@@ -102,8 +101,15 @@ CHIP CPU {
     And(a=tmp9, b=j3, out=jump5);
 
     Or8Way(in[0]=jump0, in[1]=jump1, in[2]=jump2, in[3]=jump3, in[4]=jump4,
-           in[5]=jump5, in[6..7]=false, out=jump);
-    And(a=jump, b=inst, out=PCload);
+           in[5]=jump5, in[6..7]=false, out=PCload);
+
+    // No jump
+    Or(a=j1, b=j2, out=njump0);
+    Or(a=njump0, b=j3, out=njump1);
+    Not(in=njump1, out=njump2);
+    Or(a=notinst, b=njump2, out=nojump);
+    Not(in=PCload, out=notPCload);
+    Or(a=nojump, b=notPCload, out=PCinc);
 
     // PC
     PC(in=fromAreg, load=PCload, inc=PCinc, reset=reset, out[0..14]=pc);
