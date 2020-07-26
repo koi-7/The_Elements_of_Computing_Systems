@@ -2,16 +2,18 @@
 
 ## Memory
 
-## CPU
+![Memory](https://user-images.githubusercontent.com/61448492/88470179-402a8980-cf34-11ea-88c2-257b60e212db.png)
 
-### 全体像
+- ```address``` の最上位ビットが 0 なら RAM16K に、1 なら Screen に書き込む
+- 出力の選択も ```address``` から判断
+  - ビットの並び方とインデックスの関係に注意（p.326 参照、先人の知恵）
+
+## CPU
 
 ![CPU](https://user-images.githubusercontent.com/61448492/88451277-4ff09200-ce90-11ea-87ad-34897b9343ed.png)
 
-### 説明
-
-はじめに instruction において ```instruction[15]``` と他ビットの AND をとることで A 命令と C 命令の区別をはっきりさせる<br />
-線に名前をつけられるおまけつき
+- Jump の分岐は各自いい感じになるように頑張る
+- ```instruction``` において ```instruction[15]``` と他ビットの AND をとることで A 命令と C 命令の区別をはっきりさせた
 
 ```
 And16(a[0]=instruction[15], a[1]=instruction[15], a[2]=instruction[15],
@@ -27,10 +29,5 @@ And16(a[0]=instruction[15], a[1]=instruction[15], a[2]=instruction[15],
       out[5]=d1, out[4]=d2, out[3]=d3,
       out[2]=j1, out[1]=j2, out[0]=j3);
 ```
-
-あとは基本的に図の通り配線する <br />
-ジャンプ条件の処理は各自いい感じになるよう頑張る <br />
-
-## 命令メモリ
 
 ## Computer
