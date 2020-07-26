@@ -4,9 +4,10 @@
 
 ![Memory](https://user-images.githubusercontent.com/61448492/88470179-402a8980-cf34-11ea-88c2-257b60e212db.png)
 
-- ```address``` の最上位ビットが 0 なら RAM16K に、1 なら Screen に書き込む
+- ```address``` の最上位ビットが 0 なら通常のデータ領域（RAM16K）に、1 ならスクリーン領域（Screen）に書き込む
 - 出力の選択も ```address``` から判断
   - ビットの並び方とインデックスの関係に注意（p.326 参照、先人の知恵）
+- テストをする際はハードウェアシミュレータ右上の ```View:``` 項目を ```Screen``` に設定する
 
 ## CPU
 
