@@ -2,3 +2,5 @@
 *.out
 *.tst
 *.hack
+
+06/*/*.asm
