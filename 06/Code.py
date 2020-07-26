@@ -57,7 +57,8 @@ jump_dict = {
 
 
 class Code:
-    def dest(mnemonic):
+    @classmethod
+    def dest(cls, mnemonic):
         '''
         dest ニーモニックのバイナリコードを返す
         in:  str
@@ -68,7 +69,8 @@ class Code:
         else:
             return dest_dict[mnemonic]
 
-    def comp(mnemonic):
+    @classmethod
+    def comp(cls, mnemonic):
         '''
         comp ニーモニックのバイナリコードを返す
         in:  str
@@ -76,7 +78,8 @@ class Code:
         '''
         return comp_dict[mnemonic]
 
-    def jump(mnemonic):
+    @classmethod
+    def jump(cls, mnemonic):
         '''
         jump ニーモニックのバイナリコードを返す
         in:  str
