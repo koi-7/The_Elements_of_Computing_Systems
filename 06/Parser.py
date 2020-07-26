@@ -1,9 +1,36 @@
 #!/usr/bin/python3
 # coding: utf-8
 
+import re
+import Code as cd
+
+
+A_COMMAND = 0
+C_COMMAND = 1
+L_COMMAND = 2
+
+
+a_pattern = r''
+c_pattern = r''
+l_pattern = r''
+
+
 class Parser:
     def __init__(self, filename):
-        pass
+        '''
+        入力ファイル / ストリームを開きパースを行う準備をする
+        in:  str
+        out: void
+        '''
+        self.command = ''
+        self.f = open(filename, 'rt')
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.f.close()
+
 
     def hasMoreCommands(self):
         '''
@@ -11,7 +38,10 @@ class Parser:
         in:  void
         out: bool
         '''
-        pass
+        if self.command == '':
+            return False
+        else:
+            return True
 
     def advance(self):
         '''
@@ -19,19 +49,19 @@ class Parser:
         in:  void
         out: void
         '''
-        pass
+        self.command = self.f.readline()
 
     def commandType(self):
         '''
-       現コマンドの種類を返す
+        現コマンドの種類を返す
         in:  void
-        out: COMMAND
+        out: A_COMMAND, C_COMMAND, L_COMMAND
         '''
         pass
 
     def symbol(self):
         '''
-        現コマンドのシンボルを返す
+        現コマンドのシンボルもしくは10進数の数値を返す
         in:  void
         out: str
         '''
