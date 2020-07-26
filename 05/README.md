@@ -32,3 +32,5 @@ And16(a[0]=instruction[15], a[1]=instruction[15], a[2]=instruction[15],
 ```
 
 ## Computer
+
+- p.105 図5-8 を参考に CPU、Memory、ビルトインの ROM32K を繋ぐ
