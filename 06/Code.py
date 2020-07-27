@@ -64,7 +64,7 @@ class Code:
         in:  str
         out: str
         '''
-        if mnemonic == None:
+        if mnemonic == '':
             return dest_dict['null']
         else:
             return dest_dict[mnemonic]
@@ -85,7 +85,7 @@ class Code:
         in:  str
         out: str
         '''
-        if mnemonic == None:
+        if mnemonic == '':
             return dest_dict['null']
         else:
             return dest_dict[mnemonic]

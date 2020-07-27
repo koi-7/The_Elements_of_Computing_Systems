@@ -14,7 +14,7 @@ dest_pattern = r'(A?M?D?)'
 comp_pattern = r'([AMD]?[\+\-\!&\|]?[01AMD]?)'
 jump_pattern = r'(J?[EGLNM]?[TQEP]?)'
 
-a_pattern = r'@[0-9]+'
+a_pattern = r'@([0-9]+)'
 c_pattern = dest_pattern + r'=?' + comp_pattern + r';?' + jump_pattern
 l_pattern = r'\(' + symbol_pattern + r'\)'
 
@@ -42,10 +42,15 @@ class Parser:
         in:  void
         out: bool
         '''
-        if self.command == '':
-            return False
-        else:
-            return True
+        while True:
+            line = self.f.readline()
+            if line == '':
+                return False
+            elif re.match(r'^\n$|^/{2}', line):
+                continue
+            else:
+                self.command = line
+                return True
 
     def advance(self):
         '''
@@ -53,23 +58,7 @@ class Parser:
         in:  void
         out: void
         '''
-
-        # self.command = self.f.readline()
-
-        #while self.command:
-        #    if re.match(r'^\n$|^/{2}', self.command):
-        #        self.command = self.f.readline()
-        #    else:
-        #        self.command = self.command.strip()
-        #        break
-
-        for line in self.f:
-            print(line, end='')
-            if re.match(r'^\n$|^//', line):
-                continue
-            else:
-                self.command = line
-                break
+        self.command = self.command.rstrip()
 
     def commandType(self):
         '''
@@ -90,7 +79,12 @@ class Parser:
         in:  void
         out: str
         '''
-        pass
+        if self.commandType() == A_COMMAND:          ## 定数
+            m = re.match(a_pattern, self.command)
+            const = int(m.group(1))
+            return format(const, '016b')
+        elif self.commandType() == L_COMMAND:        ## シンボル
+            pass
 
     def dest(self):
         '''
@@ -98,7 +92,9 @@ class Parser:
         in:  void
         out: str
         '''
-        pass
+        m = re.match(c_pattern, self.command)
+        mnemonic = m.group(1)
+        return cd.Code().dest(mnemonic)
 
     def comp(self):
         '''
@@ -106,7 +102,9 @@ class Parser:
         in:  void
         out: str
         '''
-        pass
+        m = re.match(c_pattern, self.command)
+        mnemonic = m.group(2)
+        return cd.Code().comp(mnemonic)
 
     def jump(self):
         '''
@@ -114,4 +112,6 @@ class Parser:
         in:  void
         out: str
         '''
-        pass
+        m = re.match(c_pattern, self.command)
+        mnemonic = m.group(3)
+        return cd.Code().jump(mnemonic)
