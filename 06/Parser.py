@@ -9,9 +9,13 @@ A_COMMAND = 0
 C_COMMAND = 1
 L_COMMAND = 2
 
-symbol_pattern = r'[a-zA-z_.$0-9]+'
-a_pattern = r'@([0-9]+)'
-l_pattern = r'\(' + symbol_pattern + r'\)'
+#symbol_pattern = r'[a-zA-z_.$0-9]+'
+#a_pattern = r'@([0-9]+)'
+#a_pattern = r'@(' + symbol_pattern + r')'
+#l_pattern = r'\(' + symbol_pattern + r'\)'
+
+a_pattern = r'@([a-zA-z_.$0-9]+)'
+l_pattern = r'\(([a-zA-z_.$0-9]+)\)'
 
 
 class Parser:
@@ -53,7 +57,7 @@ class Parser:
         in:  void
         out: void
         '''
-        self.command = self.command.rstrip()
+        self.command = self.command.strip()
 
     def commandType(self):
         '''
@@ -74,11 +78,13 @@ class Parser:
         in:  void
         out: str
         '''
-        if self.commandType() == A_COMMAND:          ## 定数
-            m = re.match(a_pattern, self.command)
-            return m.group(1)
-        elif self.commandType() == L_COMMAND:        ## シンボル
-            pass
+        if self.commandType() == A_COMMAND:    ## @Xxx
+            pattern = a_pattern
+        elif self.commandType() == L_COMMAND:  ## (Xxx)
+            pattern = l_pattern
+
+        m = re.match(pattern, self.command)
+        return m.group(1)
 
     def dest(self):
         '''
