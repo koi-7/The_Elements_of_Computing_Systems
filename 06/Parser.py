@@ -9,10 +9,14 @@ A_COMMAND = 0
 C_COMMAND = 1
 L_COMMAND = 2
 
+symbol_pattern = r'[a-zA-z_.$0-9]+'
+dest_pattern = r'(A?M?D?)'
+comp_pattern = r'([AMD]?[\+\-\!&\|]?[01AMD]?)'
+jump_pattern = r'(J?[EGLNM]?[TQEP]?)'
 
-a_pattern = r''
-c_pattern = r''
-l_pattern = r''
+a_pattern = r'@[0-9]+'
+c_pattern = dest_pattern + r'=?' + comp_pattern + r';?' + jump_pattern
+l_pattern = r'\(' + symbol_pattern + r'\)'
 
 
 class Parser:
@@ -49,7 +53,23 @@ class Parser:
         in:  void
         out: void
         '''
-        self.command = self.f.readline()
+
+        # self.command = self.f.readline()
+
+        #while self.command:
+        #    if re.match(r'^\n$|^/{2}', self.command):
+        #        self.command = self.f.readline()
+        #    else:
+        #        self.command = self.command.strip()
+        #        break
+
+        for line in self.f:
+            print(line, end='')
+            if re.match(r'^\n$|^//', line):
+                continue
+            else:
+                self.command = line
+                break
 
     def commandType(self):
         '''
@@ -57,7 +77,12 @@ class Parser:
         in:  void
         out: A_COMMAND, C_COMMAND, L_COMMAND
         '''
-        pass
+        if re.match(a_pattern, self.command):
+            return A_COMMAND
+        elif re.match(c_pattern, self.command):
+            return C_COMMAND
+        elif re.match(l_pattern, self.command):
+            return L_COMMAND
 
     def symbol(self):
         '''
