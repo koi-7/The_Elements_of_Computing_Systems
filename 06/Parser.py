@@ -10,12 +10,7 @@ C_COMMAND = 1
 L_COMMAND = 2
 
 symbol_pattern = r'[a-zA-z_.$0-9]+'
-dest_pattern = r'(A?M?D?)'
-comp_pattern = r'([AMD]?[\+\-\!&\|]?[01AMD]?)'
-jump_pattern = r'(J?[EGLNM]?[TQEP]?)'
-
 a_pattern = r'@([0-9]+)'
-c_pattern = dest_pattern + r'=?' + comp_pattern + r';?' + jump_pattern
 l_pattern = r'\(' + symbol_pattern + r'\)'
 
 
@@ -68,10 +63,10 @@ class Parser:
         '''
         if re.match(a_pattern, self.command):
             return A_COMMAND
-        elif re.match(c_pattern, self.command):
-            return C_COMMAND
         elif re.match(l_pattern, self.command):
             return L_COMMAND
+        else:
+            return C_COMMAND
 
     def symbol(self):
         '''
@@ -81,8 +76,7 @@ class Parser:
         '''
         if self.commandType() == A_COMMAND:          ## 定数
             m = re.match(a_pattern, self.command)
-            const = int(m.group(1))
-            return format(const, '016b')
+            return m.group(1)
         elif self.commandType() == L_COMMAND:        ## シンボル
             pass
 
@@ -92,9 +86,11 @@ class Parser:
         in:  void
         out: str
         '''
-        m = re.match(c_pattern, self.command)
-        mnemonic = m.group(1)
-        return cd.Code().dest(mnemonic)
+        m = self.command.split('=')
+        if len(m) == 1:
+            return ''
+        else:
+            return m[0]
 
     def comp(self):
         '''
@@ -102,9 +98,13 @@ class Parser:
         in:  void
         out: str
         '''
-        m = re.match(c_pattern, self.command)
-        mnemonic = m.group(2)
-        return cd.Code().comp(mnemonic)
+        m1 = self.command.split('=')
+        if len(m1) == 1:
+            m2 = m1[0].split(';')
+            return m2[0]
+        else:
+            m2 = m1[1].split(';')
+            return m2[0]
 
     def jump(self):
         '''
@@ -112,6 +112,8 @@ class Parser:
         in:  void
         out: str
         '''
-        m = re.match(c_pattern, self.command)
-        mnemonic = m.group(3)
-        return cd.Code().jump(mnemonic)
+        m = self.command.split(';')
+        if len(m) == 1:
+            return ''
+        else:
+            return m[1]

@@ -86,6 +86,6 @@ class Code:
         out: str
         '''
         if mnemonic == '':
-            return dest_dict['null']
+            return jump_dict['null']
         else:
-            return dest_dict[mnemonic]
+            return jump_dict[mnemonic]
