@@ -6,7 +6,7 @@ import Parser as ps
 import Code as cd
 import SymbolTable as st
 
-START_ADDRESS = 16
+START_ADDRESS = 0
 
 def main():
     filename = sys.argv[1]
@@ -19,11 +19,10 @@ def main():
     with ps.Parser(filename) as p:
         while p.hasMoreCommands():
             p.advance()
-            if p.commandType() != ps.C_COMMAND:
-                s = p.symbol()
-                if (not str.isdecimal(s)) & (not t.contains(s)):
-                    t.addEntry(s, address_counter)
-                    address_counter += 1
+            address_counter += 1
+            if p.commandType() == ps.L_COMMAND:
+                t.table[p.symbol()] = address_counter
+
 
     print(t.table)
     exit()
