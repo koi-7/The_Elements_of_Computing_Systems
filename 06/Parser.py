@@ -9,11 +9,6 @@ A_COMMAND = 0
 C_COMMAND = 1
 L_COMMAND = 2
 
-#symbol_pattern = r'[a-zA-z_.$0-9]+'
-#a_pattern = r'@([0-9]+)'
-#a_pattern = r'@(' + symbol_pattern + r')'
-#l_pattern = r'\(' + symbol_pattern + r'\)'
-
 a_pattern = r'@([a-zA-z_.$0-9]+)'
 l_pattern = r'\(([a-zA-z_.$0-9]+)\)'
 
@@ -57,7 +52,10 @@ class Parser:
         in:  void
         out: void
         '''
-        self.command = self.command.strip()
+        line = self.command                   ## '  dest=comp;jump    // comment\n'
+        line = self.command.replace(' ', '')  ## 'dest=comp;jump//comment\n'
+        line_list = line.split('//')
+        self.command = line_list[0].strip()  ## コメントの有無に関係なく先頭要素
 
     def commandType(self):
         '''
@@ -107,10 +105,9 @@ class Parser:
         m1 = self.command.split('=')
         if len(m1) == 1:
             m2 = m1[0].split(';')
-            return m2[0]
         else:
             m2 = m1[1].split(';')
-            return m2[0]
+        return m2[0]
 
     def jump(self):
         '''
