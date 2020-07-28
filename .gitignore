@@ -2,5 +2,6 @@
 *.out
 *.tst
 *.hack
+*.vm
 
 06/*/*.asm
