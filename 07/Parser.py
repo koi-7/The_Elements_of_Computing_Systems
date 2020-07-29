@@ -77,6 +77,6 @@ class Parser:
         void -> int
         '''
         command_list = self.command.split(' ')
-        return command_list[2]
+        return int(command_list[2])
 
 
