@@ -9,6 +9,11 @@ class CodeWriter:
         '''
         self.f = open(filename, 'wt')
 
+        self.f.write('@256' + '\n')
+        self.f.write('D=A' + '\n')
+        self.f.write('@SP' + '\n')
+        self.f.write('M=D' + '\n')
+
     def setFileName(self, fileName):
         '''
         CodeWriter モジュールに新しい VM ファイルの変換が開始したことを知らせる
@@ -21,14 +26,33 @@ class CodeWriter:
         与えられた算術コマンドをアセンブリコードに変換し、それを書き込む
         str -> void
         '''
-        pass
+        if command == 'add':
+            self.f.write('@SP' + '\n')
+            self.f.write('M=M-1' + '\n')
+            self.f.write('A=M-1' + '\n')
+            self.f.write('D=M' + '\n')
+            self.f.write('A=A+1' + '\n')
+            self.f.write('M=D+M' + '\n')
+        else:
+            pass
 
     def writePushPop(self, command, segment, index):
         '''
         C_PUSH または C_POP コマンドをアセンブリコードに変換し、それを書き込む
         int, str, int -> void
         '''
-        pass
+        if command == 'push':
+            if segment == 'constant':
+                self.f.write('@' + index + '\n')
+                self.f.write('D=A' + '\n')
+                self.f.write('@SP' + '\n')
+                self.f.write('M=M+1' + '\n')
+                self.f.write('A=M-1' + '\n')
+                self.f.write('M=D' + '\n')
+            else:
+                pass
+        elif command == 'pop':
+            pass
 
     def close(self):
         '''
