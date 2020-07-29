@@ -27,11 +27,11 @@ class CodeWriter:
         str -> void
         '''
         if command == 'add':
-            self.f.write('@SP' + '\n')
+            self.f.write('@SP'   + '\n')
             self.f.write('M=M-1' + '\n')
-            self.f.write('A=M-1' + '\n')
-            self.f.write('D=M' + '\n')
-            self.f.write('A=A+1' + '\n')
+            self.f.write('A=M'   + '\n')
+            self.f.write('D=M'   + '\n')
+            self.f.write('A=A-1' + '\n')
             self.f.write('M=D+M' + '\n')
         else:
             pass
@@ -44,11 +44,11 @@ class CodeWriter:
         if command == 'push':
             if segment == 'constant':
                 self.f.write('@' + index + '\n')
-                self.f.write('D=A' + '\n')
-                self.f.write('@SP' + '\n')
-                self.f.write('M=M+1' + '\n')
-                self.f.write('A=M-1' + '\n')
-                self.f.write('M=D' + '\n')
+                self.f.write('D=A'       + '\n')
+                self.f.write('@SP'       + '\n')
+                self.f.write('M=M+1'     + '\n')
+                self.f.write('A=M-1'     + '\n')
+                self.f.write('M=D'       + '\n')
             else:
                 pass
         elif command == 'pop':
