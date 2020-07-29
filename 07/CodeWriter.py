@@ -163,27 +163,92 @@ class CodeWriter:
             self.f.write('@SP'   + '\n')
             self.f.write('M=M+1' + '\n')
 
-
-
     def writePushPop(self, command, segment, index):
         '''
         C_PUSH または C_POP コマンドをアセンブリコードに変換し、それを書き込む
         int, str, int -> void
         '''
+
+        segment_dict = {
+            'argument': 'ARG',
+            'local': 'LCL',
+            'static': 16,
+            'constant': '',
+            'this': 'THIS',
+            'that': 'THAT',
+            'pointer': 3,
+            'temp': 5,
+        }
+
         self.f.write('\n')
 
         if command == 'push':
-            if segment == 'constant':
-                self.f.write('@' + index + '     // push constant n \n')
+            if segment == 'argument' or segment == 'local' or segment == 'this' or segment == 'that':
+                self.f.write('@' + str(index) + '     // push a or l or th \n')
+                self.f.write('D=A' + '\n')
+                self.f.write('@' + segment_dict[segment] + '\n')
+                self.f.write('A=D+M' + '\n')
+                self.f.write('D=M' + '\n')
+                self.f.write('@SP' + '     // ここから push \n')
+                self.f.write('M=M+1' + '\n')
+                self.f.write('A=M-1' + '\n')
+                self.f.write('M=D' + '\n')
+            elif segment == 'static':
+                self.f.write('@' + str(index) + '     // push static \n')
+                self.f.write('D=A' + '\n')
+                self.f.write('@' + segment_dict[segment] + '\n')
+                self.f.write('A=D+M' + '\n')
+                self.f.write('D=M' + '\n')
+                self.f.write('@SP' + '     // ここから push \n')
+                self.f.write('M=M+1' + '\n')
+                self.f.write('A=M-1' + '\n')
+                self.f.write('M=D' + '\n')
+            elif segment == 'constant':
+                self.f.write('@' + str(index) + '     // push constant\n')
                 self.f.write('D=A'       + '\n')
                 self.f.write('@SP'       + '\n')
                 self.f.write('M=M+1'     + '\n')
                 self.f.write('A=M-1'     + '\n')
                 self.f.write('M=D'       + '\n')
-            else:
-                pass
+            elif segment == 'pointer' or segment == 'temp':
+                self.f.write('@' + str(segment_dict[segment] + index) + ' // push p or tmp\n')
+                self.f.write('D=M' + '\n')
+                self.f.write('@SP' + '     // ここから push \n')
+                self.f.write('M=M+1' + '\n')
+                self.f.write('A=M-1' + '\n')
+                self.f.write('M=D' + '\n')
+
         elif command == 'pop':
-            pass
+            if segment == 'argument' or segment == 'local' or segment == 'this' or segment == 'that':
+                self.f.write('// pop a or l or th \n')
+                self.f.write('@SP' + '\n')
+                self.f.write('M=M-1' + '\n')
+                self.f.write('A=M' + '\n')
+                self.f.write('D=M' + '\n')
+                self.f.write('@' + segment_dict[segment] + '\n')
+                for i in range(index):
+                    self.f.write('A=A+1' + '\n')  ## 力業
+                self.f.write('M=D' + '\n')
+
+            elif segment == 'static':
+                self.f.write('// pop static \n')
+                self.f.write('@SP' + '\n')
+                self.f.write('M=M-1' + '\n')
+                self.f.write('A=M' + '\n')
+                self.f.write('D=M' + '\n')
+                self.f.write('@' + segment_dict[segment] + '\n')
+                for i in range(index):
+                    self.f.write('A=A+1' + '\n')  ## 力業
+                self.f.write('M=D' + '\n')
+
+            elif segment == 'pointer' or segment == 'temp':
+                self.f.write('@' + str(segment_dict[segment] + index) + ' // pop p or tmp\n')
+                self.f.write('' + '\n')
+                self.f.write('' + '\n')
+                self.f.write('' + '\n')
+                self.f.write('' + '\n')
+                self.f.write('' + '\n')
+
 
     def close(self):
         '''
