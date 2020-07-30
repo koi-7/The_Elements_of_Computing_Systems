@@ -1,6 +1,8 @@
 #!/usr/bin/python3
 # coding: utf-8
 
+import Parser as ps
+
 jump_addr = 0
 segment_dict = {
     'local':    1,  ## LCL
@@ -196,7 +198,7 @@ class CodeWriter:
 
         self.f.write('\n')
 
-        if command == 'C_PUSH':
+        if command == ps.C_PUSH:
             if segment == 'argument' or segment == 'local' or segment == 'this' or segment == 'that':
                 self.f.write('// push argument, local, this, that \n')
                 self.f.write('@' + str(index)                 + '\n')
@@ -236,7 +238,7 @@ class CodeWriter:
                 self.f.write('A=M-1'                          + '\n')
                 self.f.write('M=D'                            + '\n')
 
-        elif command == 'C_POP':
+        elif command == ps.C_POP:
             if segment == 'argument' or segment == 'local' or segment == 'this' or segment == 'that':
                 self.f.write('// pop argument, local, this, that \n')
                 self.f.write('@' + str(index)                 + '\n')
