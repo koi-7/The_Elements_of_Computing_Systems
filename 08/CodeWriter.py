@@ -4,6 +4,7 @@
 import Parser as ps
 
 jump_addr = 0
+label_number = 0
 segment_dict = {
     'local':    1,  ## LCL
     'argument': 2,  ## ARG,
@@ -49,8 +50,6 @@ class CodeWriter:
         '''
         global jump_addr
 
-        self.f.write('\n')
-
         if command == 'add':
             self.f.write('// add \n')
             self.f.write('@SP'   + '\n')
@@ -80,8 +79,8 @@ class CodeWriter:
             self.f.write('M=M+1' + '\n')
 
         elif command == 'eq':
-            eq_jump1 = 'jump' + str(jump_addr)
-            eq_jump2 = 'jump' + str(jump_addr + 1)
+            jump1 = 'jump' + str(jump_addr)
+            jump2 = 'jump' + str(jump_addr + 1)
             jump_addr += 2
             self.f.write('// eq \n')
             self.f.write('@SP'                + '\n')
@@ -90,25 +89,25 @@ class CodeWriter:
             self.f.write('D=M'                + '\n')
             self.f.write('A=A-1'              + '\n')
             self.f.write('D=M-D'              + '\n')
-            self.f.write('@' + eq_jump1       + '\n')
+            self.f.write('@' + jump1       + '\n')
             self.f.write('D;JEQ'              + '\n')
             self.f.write('@SP'                + '\n')
             self.f.write('A=M'                + '\n')
             self.f.write('A=A-1'              + '\n')
             self.f.write('M=0'                + '\n')
-            self.f.write('@' + eq_jump2       + '\n')
+            self.f.write('@' + jump2       + '\n')
             self.f.write('0;JMP'              + '\n')
-            self.f.write('(' + eq_jump1 + ')' + '\n')
+            self.f.write('(' + jump1 + ')' + '\n')
             self.f.write('@SP'                + '\n')
             self.f.write('A=M'                + '\n')
             self.f.write('A=A-1'              + '\n')
             self.f.write('M=0'                + '\n')
             self.f.write('M=-1'               + '\n')
-            self.f.write('(' + eq_jump2 + ')' + '\n')
+            self.f.write('(' + jump2 + ')' + '\n')
 
         elif command == 'gt':
-            eq_jump1 = 'jump' + str(jump_addr)
-            eq_jump2 = 'jump' + str(jump_addr + 1)
+            jump1 = 'jump' + str(jump_addr)
+            jump2 = 'jump' + str(jump_addr + 1)
             jump_addr += 2
             self.f.write('// gt \n')
             self.f.write('@SP'                + '\n')
@@ -117,25 +116,25 @@ class CodeWriter:
             self.f.write('D=M'                + '\n')
             self.f.write('A=A-1'              + '\n')
             self.f.write('D=M-D'              + '\n')
-            self.f.write('@' + eq_jump1       + '\n')
+            self.f.write('@' + jump1       + '\n')
             self.f.write('D;JGT'              + '\n')
             self.f.write('@SP'                + '\n')
             self.f.write('A=M'                + '\n')
             self.f.write('A=A-1'              + '\n')
             self.f.write('M=0'                + '\n')
-            self.f.write('@' + eq_jump2       + '\n')
+            self.f.write('@' + jump2       + '\n')
             self.f.write('0;JMP'              + '\n')
-            self.f.write('(' + eq_jump1 + ')' + '\n')
+            self.f.write('(' + jump1 + ')' + '\n')
             self.f.write('@SP'                + '\n')
             self.f.write('A=M'                + '\n')
             self.f.write('A=A-1'              + '\n')
             self.f.write('M=0'                + '\n')
             self.f.write('M=-1'               + '\n')
-            self.f.write('(' + eq_jump2 + ')' + '\n')
+            self.f.write('(' + jump2 + ')' + '\n')
 
         elif command == 'lt':
-            eq_jump1 = 'jump' + str(jump_addr)
-            eq_jump2 = 'jump' + str(jump_addr + 1)
+            jump1 = 'jump' + str(jump_addr)
+            jump2 = 'jump' + str(jump_addr + 1)
             jump_addr += 2
             self.f.write('// lt \n')
             self.f.write('@SP'                + '\n')
@@ -144,21 +143,21 @@ class CodeWriter:
             self.f.write('D=M'                + '\n')
             self.f.write('A=A-1'              + '\n')
             self.f.write('D=M-D'              + '\n')
-            self.f.write('@' + eq_jump1       + '\n')
+            self.f.write('@' + jump1       + '\n')
             self.f.write('D;JLT'              + '\n')
             self.f.write('@SP'                + '\n')
             self.f.write('A=M'                + '\n')
             self.f.write('A=A-1'              + '\n')
             self.f.write('M=0'                + '\n')
-            self.f.write('@' + eq_jump2       + '\n')
+            self.f.write('@' + jump2       + '\n')
             self.f.write('0;JMP'              + '\n')
-            self.f.write('(' + eq_jump1 + ')' + '\n')
+            self.f.write('(' + jump1 + ')' + '\n')
             self.f.write('@SP'                + '\n')
             self.f.write('A=M'                + '\n')
             self.f.write('A=A-1'              + '\n')
             self.f.write('M=0'                + '\n')
             self.f.write('M=-1'               + '\n')
-            self.f.write('(' + eq_jump2 + ')' + '\n')
+            self.f.write('(' + jump2 + ')' + '\n')
 
         elif command == 'and':
             self.f.write('// and \n')
@@ -195,8 +194,6 @@ class CodeWriter:
         '''
 
         global segment_dict
-
-        self.f.write('\n')
 
         if command == ps.C_PUSH:
             if segment == 'argument' or segment == 'local' or segment == 'this' or segment == 'that':
@@ -292,31 +289,44 @@ class CodeWriter:
         label コマンドを行うアセンブリコードを書く
         str -> void
         '''
-        self.f.write('\n')
+
         self.f.write('// label \n')
+        self.f.write('(' + label + ')' + '\n')
 
     def writeGoto(self, label):
         '''
         goto コマンドを行うアセンブリコードを書く
         str -> void
         '''
-        self.f.write('\n')
         self.f.write('// goto \n')
+        self.f.write('goto' + label + '\n')
 
     def writeIf(self, label):
         '''
         if-goto コマンドを行うアセンブリコードを書く
         str -> void
         '''
-        self.f.write('\n')
+        global label_number
+
+        new_label = 'Label' + str(label_number)
+        label_number += 1
+
         self.f.write('// if-goto \n')
+        self.f.write('@SP' + '\n')
+        self.f.write('M=M-1' + '\n')
+        self.f.write('A=M' + '\n')
+        self.f.write('D=M' + '\n')
+        self.f.write('@' + new_label + '\n')
+        self.f.write('D;JEQ' + '\n')
+        self.f.write('@' + label + '\n')
+        self.f.write('0;JMP' + '\n')
+        self.f.write('(' + new_label + ')' + '\n')
 
     def writeCall(self, functionName, numArgs):
         '''
         call コマンドを行うアセンブリコードを書く
         str, int -> void
         '''
-        self.f.write('\n')
         self.f.write('// call \n')
 
     def writeReturn(self):
@@ -324,7 +334,6 @@ class CodeWriter:
         return コマンドを行うアセンブリコードを書く
         void -> void
         '''
-        self.f.write('\n')
         self.f.write('// return \n')
 
     def writeFunction(self, functionName, numLocals):
@@ -332,7 +341,6 @@ class CodeWriter:
         function コマンドを行うアセンブリコードを書く
         str, int -> void
         '''
-        self.f.write('\n')
         self.f.write('// function \n')
 
     def close(self):

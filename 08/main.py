@@ -13,6 +13,8 @@ def main():
         while p.hasMoreCommands():
             p.advance()
 
+            c.f.write('\n')
+
             if p.commandType() == ps.C_ARITHMETIC:
                 c.writeArithmetic(p.command)
             elif p.commandType() == ps.C_PUSH:

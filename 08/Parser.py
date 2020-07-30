@@ -61,7 +61,7 @@ class Parser:
             return C_PUSH
         elif command_elems[0] == 'pop':
             return C_POP
-        elif command_elems[0] == 'lebel':
+        elif command_elems[0] == 'label':
             return C_LABEL
         elif command_elems[0] == 'goto':
             return C_GOTO
