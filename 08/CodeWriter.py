@@ -343,6 +343,9 @@ class CodeWriter:
         str, int -> void
         '''
         self.f.write('// function \n')
+        self.f.write('(' + functionName + ')' + '\n')
+        for i in range(numLocals):
+            self.f.write('push 0' + '\n')
 
     def close(self):
         '''
