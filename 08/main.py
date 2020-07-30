@@ -12,12 +12,48 @@ def main():
         c = cw.CodeWriter(outfile)
         while p.hasMoreCommands():
             p.advance()
-            if p.commandType() == ps.C_PUSH:
-                c.writePushPop(ps.C_PUSH, p.arg1(), p.arg2())
-            elif p.commandType() == ps.C_POP:
-                c.writePushPop(ps.C_POP, p.arg1(), p.arg2())
-            elif p.commandType() == ps.C_ARITHMETIC:
+
+            if p.commandType() == 'C_ARITHMETIC':
                 c.writeArithmetic(p.command)
+            elif p.commandType() == 'C_PUSH':
+                c.writePushPop('C_PUSH', p.arg1(), p.arg2())
+            elif p.commandType() == 'C_POP':
+                c.writePushPop('C_POP', p.arg1(), p.arg2())
+            elif p.commandType() == 'C_LABEL':
+                c.writeLabel(p.arg1())
+            elif p.commandType() == 'C_GOTO':
+                c.writeGoto(p.arg1())
+            elif p.commandType() == 'C_IF':
+                c.writeIf(p.arg1())
+            elif p.commandType() == 'C_CALL':
+                c.writeCall(p.arg1(), p.arg2())
+            elif p.commandType() == 'C_RETURN':
+                c.writeReturn()
+            elif p.commandType() == 'C_FUNCTION':
+                c.writeFunction(p.arg1(), p.arg2())
+            else:
+                pass
+
+            # if p.commandType() == ps.C_ARITHMETIC:
+            #     c.writeArithmetic(p.command)
+            # elif p.commandType() == ps.C_PUSH:
+            #     c.writePushPop(ps.C_PUSH, p.arg1(), p.arg2())
+            # elif p.commandType() == ps.C_POP:
+            #     c.writePushPop(ps.C_POP, p.arg1(), p.arg2())
+            # elif p.commandType() == ps.C_LABEL:
+            #     c.writeLabel(p.arg1())
+            # elif p.commandType() == ps.C_GOTO:
+            #     c.writeGoto(p.arg1())
+            # elif p.commandType() == ps.C_IF:
+            #     c.writeIf(p.arg1())
+            # elif p.commandType() == ps.C_CALL:
+            #     c.writeCall(p.arg1(), p.arg2())
+            # elif p.commandType() == ps.C_RETURN:
+            #     c.writeReturn()
+            # elif p.commandType() == ps.C_FUNCTION:
+            #     c.writeFunction(p.arg1(), p.arg2())
+            # else:
+            #     pass
 
 if __name__=='__main__':
     main()

@@ -3,15 +3,35 @@
 
 import re
 
-C_ARITHMETIC = 'arithmetic'
-C_PUSH       = 'push'
-C_POP        = 'pop'
+# C_ARITHMETIC = 'arithmetic'
+# C_PUSH       = 'push'
+# C_POP        = 'pop'
 # C_LABEL      = 'label'
 # C_GOTO       = 'goto'
 # C_IF         = 'if'
-# C_FUNCTION   = 'function'
-# C_RETURN     = 'return'
 # C_CALL       = 'call'
+# C_RETURN     = 'return'
+# C_FUNCTION   = 'function'
+
+command_type = {
+    'add': 'C_ARITHMETIC',
+    'sub': 'C_ARITHMETIC',
+    'neg': 'C_ARITHMETIC',
+    'eq': 'C_ARITHMETIC',
+    'gt': 'C_ARITHMETIC',
+    'lt': 'C_ARITHMETIC',
+    'and': 'C_ARITHMETIC',
+    'or': 'C_ARITHMETIC',
+    'not': 'C_ARITHMETIC',
+    'push': 'C_PUSH',
+    'pop': 'C_POP',
+    'label': 'C_LABEL',
+    'if-goto': 'C_GOTO',
+    'if': 'C_IF',
+    'call': 'C_CALL',
+    'return': 'C_RETURN',
+    'function': 'C_FUNCTION',
+}
 
 class Parser:
     def __init__(self, filename):
@@ -55,13 +75,11 @@ class Parser:
         現 VM コマンドの種類を返す
         void -> str
         '''
+        global command_type
+
         command_list = self.command.split(' ')
-        if command_list[0] == 'push':
-            return C_PUSH
-        elif command_list[0] == 'pop':
-            return C_POP
-        else:
-            return C_ARITHMETIC
+
+        return command_type[command_list[0]]
 
     def arg1(self):
         '''

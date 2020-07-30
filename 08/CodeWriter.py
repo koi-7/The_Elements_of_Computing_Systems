@@ -2,6 +2,16 @@
 # coding: utf-8
 
 jump_addr = 0
+segment_dict = {
+    'local':    1,  ## LCL
+    'argument': 2,  ## ARG,
+    'this':     3,  ## THIS
+    'that':     4,  ## THAT
+    'pointer':  3,  ## THIS
+    'temp':     5,  ## R5
+    'static':   16,
+    'constant': '',
+}
 
 class CodeWriter:
     def __init__(self, filename):
@@ -20,6 +30,13 @@ class CodeWriter:
         '''
         CodeWriter モジュールに新しい VM ファイルの変換が開始したことを知らせる
         str -> void
+        '''
+        pass
+
+    def writeInit(self):
+        '''
+        VM の初期化を行うアセンブリコードを書く
+        void -> void
         '''
         pass
 
@@ -174,20 +191,12 @@ class CodeWriter:
         C_PUSH または C_POP コマンドをアセンブリコードに変換し、それを書き込む
         str, str, int -> void
         '''
-        segment_dict = {
-            'local':    1,  ## LCL
-            'argument': 2,  ## ARG,
-            'this':     3,  ## THIS
-            'that':     4,  ## THAT
-            'pointer':  3,  ## THIS
-            'temp':     5,  ## R5
-            'static':   16,
-            'constant': '',
-        }
+
+        global segment_dict
 
         self.f.write('\n')
 
-        if command == 'push':
+        if command == 'C_PUSH':
             if segment == 'argument' or segment == 'local' or segment == 'this' or segment == 'that':
                 self.f.write('// push argument, local, this, that \n')
                 self.f.write('@' + str(index)                 + '\n')
@@ -227,7 +236,7 @@ class CodeWriter:
                 self.f.write('A=M-1'                          + '\n')
                 self.f.write('M=D'                            + '\n')
 
-        elif command == 'pop':
+        elif command == 'C_POP':
             if segment == 'argument' or segment == 'local' or segment == 'this' or segment == 'that':
                 self.f.write('// pop argument, local, this, that \n')
                 self.f.write('@' + str(index)                 + '\n')
@@ -275,6 +284,54 @@ class CodeWriter:
                 self.f.write('M=D'                            + '\n')
                 self.f.write('@SP'                            + '\n')
                 self.f.write('M=M-1'                          + '\n')
+
+    def writeLabel(self, label):
+        '''
+        label コマンドを行うアセンブリコードを書く
+        str -> void
+        '''
+        self.f.write('\n')
+        self.f.write('// label \n')
+
+    def writeGoto(self, label):
+        '''
+        goto コマンドを行うアセンブリコードを書く
+        str -> void
+        '''
+        self.f.write('\n')
+        self.f.write('// goto \n')
+
+    def writeIf(self, label):
+        '''
+        if-goto コマンドを行うアセンブリコードを書く
+        str -> void
+        '''
+        self.f.write('\n')
+        self.f.write('// if-goto \n')
+
+    def writeCall(self, functionName, numArgs):
+        '''
+        call コマンドを行うアセンブリコードを書く
+        str, int -> void
+        '''
+        self.f.write('\n')
+        self.f.write('// call \n')
+
+    def writeReturn(self):
+        '''
+        return コマンドを行うアセンブリコードを書く
+        void -> void
+        '''
+        self.f.write('\n')
+        self.f.write('// return \n')
+
+    def writeFunction(self, functionName, numLocals):
+        '''
+        function コマンドを行うアセンブリコードを書く
+        str, int -> void
+        '''
+        self.f.write('\n')
+        self.f.write('// function \n')
 
     def close(self):
         '''
