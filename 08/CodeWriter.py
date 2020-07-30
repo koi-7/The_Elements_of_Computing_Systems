@@ -299,7 +299,8 @@ class CodeWriter:
         str -> void
         '''
         self.f.write('// goto \n')
-        self.f.write('goto' + label + '\n')
+        self.f.write('@' + label + '\n')
+        self.f.write('0;JMP' + '\n')
 
     def writeIf(self, label):
         '''
