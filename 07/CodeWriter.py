@@ -172,7 +172,7 @@ class CodeWriter:
     def writePushPop(self, command, segment, index):
         '''
         C_PUSH または C_POP コマンドをアセンブリコードに変換し、それを書き込む
-        int, str, int -> void
+        str, str, int -> void
         '''
         segment_dict = {
             'local':    1,  ## LCL

@@ -12,9 +12,10 @@ def main():
         c = cw.CodeWriter(outfile)
         while p.hasMoreCommands():
             p.advance()
-            if p.commandType() == ps.C_PUSH or p.commandType() == ps.C_POP:
-                com = p.command.split(' ')[0]
-                c.writePushPop(com, p.arg1(), p.arg2())
+            if p.commandType() == ps.C_PUSH:
+                c.writePushPop(ps.C_PUSH, p.arg1(), p.arg2())
+            elif p.commandType() == ps.C_POP:
+                c.writePushPop(ps.C_POP, p.arg1(), p.arg2())
             elif p.commandType() == ps.C_ARITHMETIC:
                 c.writeArithmetic(p.command)
 

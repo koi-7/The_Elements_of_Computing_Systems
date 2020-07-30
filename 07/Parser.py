@@ -3,15 +3,15 @@
 
 import re
 
-C_ARITHMETIC = 0
-C_PUSH       = 1
-C_POP        = 2
-# C_LABEL      = 3
-# C_GOTO       = 4
-# C_IF         = 5
-# C_FUNCTION   = 6
-# C_RETURN     = 7
-# C_CALL       = 8
+C_ARITHMETIC = 'arithmetic'
+C_PUSH       = 'push'
+C_POP        = 'pop'
+# C_LABEL      = 'label'
+# C_GOTO       = 'goto'
+# C_IF         = 'if'
+# C_FUNCTION   = 'function'
+# C_RETURN     = 'return'
+# C_CALL       = 'call'
 
 class Parser:
     def __init__(self, filename):
@@ -53,7 +53,7 @@ class Parser:
     def commandType(self):
         '''
         現 VM コマンドの種類を返す
-        void -> int
+        void -> str
         '''
         command_list = self.command.split(' ')
         if command_list[0] == 'push':
