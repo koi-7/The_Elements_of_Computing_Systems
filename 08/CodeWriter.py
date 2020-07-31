@@ -3,8 +3,10 @@
 
 import Parser as ps
 
-jump_addr = 0
-label_number = 0
+jump_addr = 0           ## writeArithmetic で使用
+label_number = 0        ## writeIf で使用
+return_addr_number = 0  ## writeCall で使用
+
 segment_dict = {
     'local':    1,  ## LCL
     'argument': 2,  ## ARG,
@@ -17,31 +19,34 @@ segment_dict = {
 }
 
 class CodeWriter:
-    def __init__(self, filename):
+    def __init__(self, output_file):
         '''
         出力ファイル / ストリームを開き、書き込む準備を行う
         str -> void
         '''
-        self.f = open(filename, 'wt')
-
-        self.f.write('@256' + '\n')
-        self.f.write('D=A'  + '\n')
-        self.f.write('@SP'  + '\n')
-        self.f.write('M=D'  + '\n')
+        self.input_file = ''
+        self.f = open(output_file, 'wt')
 
     def setFileName(self, fileName):
         '''
         CodeWriter モジュールに新しい VM ファイルの変換が開始したことを知らせる
         str -> void
         '''
-        pass
+        self.input_file = fileName
 
     def writeInit(self):
         '''
         VM の初期化を行うアセンブリコードを書く
         void -> void
         '''
-        pass
+        ## SP=256
+        self.f.write('@256' + '\n')
+        self.f.write('D=A'  + '\n')
+        self.f.write('@SP'  + '\n')
+        self.f.write('M=D'  + '\n')
+
+        ## call Sys.init
+        self.writeCall('Sys.init', 0)
 
     def writeArithmetic(self, command):
         '''
@@ -269,7 +274,7 @@ class CodeWriter:
             elif segment == 'static':
                 ## （今は）シンボル、複数ファイルがないので以下の通り
                 self.f.write('// pop static\n')
-                self.f.write('@'                              + str(index) + '\n')
+                self.f.write('@' + str(index)                 + '\n')
                 self.f.write('D=A'                            + '\n')
                 self.f.write('@' + str(segment_dict[segment]) + '\n')
                 self.f.write('D=D+M'                          + '\n')
@@ -328,7 +333,32 @@ class CodeWriter:
         call コマンドを行うアセンブリコードを書く
         str, int -> void
         '''
+        global return_addr_number
+
+        return_addr_label = 'return_address' + str(return_addr_number)
+        return_addr_number += 1
+
         self.f.write('// call \n')
+        ## push return-address
+        self.f.write('@' + return_addr_label + '\n')
+        ## push LCL
+
+        ## push ARG
+
+        ## push THIS
+
+        ## push THAT
+
+        ## ARG = SP-n-5
+        self.f.write('' + '\n')
+        ## LCL = SP
+        self.f.write('' + '\n')
+        ## goto f
+        self.f.write('@' + functionName + '\n')
+        self.f.write('A=M' + '\n')
+        self.f.write('0;JMP' + '\n')
+        ## (return-address)
+        self.writeLabel(return_addr_label)
 
     def writeReturn(self):
         '''
@@ -351,7 +381,7 @@ class CodeWriter:
         self.f.write('M=D' + '\n')
         ## *ARG = pop()
         self.writePushPop(ps.C_POP, 'argument', 0)
-        self.f.write('///// pop ここまで /////' + '\n')
+        self.f.write('///// pop ここまで ここから return の続き /////' + '\n')
         ## SP = ARG + 1
         self.f.write('@ARG' + '\n')
         self.f.write('D=M+1' + '\n')
