@@ -336,6 +336,61 @@ class CodeWriter:
         void -> void
         '''
         self.f.write('// return \n')
+        ## FRAME = LCL
+        self.f.write('@LCL' + '\n')
+        self.f.write('D=M' + '\n')
+        self.f.write('@FRAME' + '\n')
+        self.f.write('M=D' + '\n')
+        ## RET = *(FRAME - 5)
+        self.f.write('@5' + '\n')
+        self.f.write('D=A' + '\n')
+        self.f.write('@FRAME' + '\n')
+        self.f.write('M=M-D' + '\n')
+        self.f.write('D=M' + '\n')
+        self.f.write('@RET' + '\n')
+        self.f.write('M=D' + '\n')
+        ## *ARG = pop()
+        self.writePushPop(ps.C_POP, 'argument', 0)
+        ## SP = ARG + 1
+        self.f.write('@ARG' + '\n')
+        self.f.write('D=M+1' + '\n')
+        self.f.write('@SP' + '\n')
+        self.f.write('M=D' + '\n')
+        ## THAT = *(FRAME-1)
+        self.f.write('@1' + '\n')
+        self.f.write('D=A' + '\n')
+        self.f.write('@FRAME' + '\n')
+        self.f.write('M=M-D' + '\n')
+        self.f.write('D=M' + '\n')
+        self.f.write('@THAT' + '\n')
+        self.f.write('M=D' + '\n')
+        ## THIS = *(FRAME-2)
+        self.f.write('@2' + '\n')
+        self.f.write('D=A' + '\n')
+        self.f.write('@FRAME' + '\n')
+        self.f.write('M=M-D' + '\n')
+        self.f.write('D=M' + '\n')
+        self.f.write('@THIS' + '\n')
+        self.f.write('M=D' + '\n')
+        ## ARG = *(FRAME-3)
+        self.f.write('@3' + '\n')
+        self.f.write('D=A' + '\n')
+        self.f.write('@FRAME' + '\n')
+        self.f.write('M=M-D' + '\n')
+        self.f.write('D=M' + '\n')
+        self.f.write('@ARG' + '\n')
+        self.f.write('M=D' + '\n')
+        ## LCL = *(FRAME-4)
+        self.f.write('@4' + '\n')
+        self.f.write('D=A' + '\n')
+        self.f.write('@FRAME' + '\n')
+        self.f.write('M=M-D' + '\n')
+        self.f.write('D=M' + '\n')
+        self.f.write('@LCL' + '\n')
+        self.f.write('M=D' + '\n')
+        ## goto RET
+        self.f.write('@RET' + '\n')
+        self.f.write('0;JMP' + '\n')
 
     def writeFunction(self, functionName, numLocals):
         '''
@@ -345,7 +400,7 @@ class CodeWriter:
         self.f.write('// function \n')
         self.f.write('(' + functionName + ')' + '\n')
         for i in range(numLocals):
-            self.f.write('push 0' + '\n')
+            self.writePushPop(ps.C_PUSH, 'constant', 0)
 
     def close(self):
         '''
