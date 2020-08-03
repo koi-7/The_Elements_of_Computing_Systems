@@ -48,7 +48,8 @@ class Parser:
         入力から次のコマンドを読み、それを現在のコマンドにする
         void -> void
         '''
-        self.command = self.command.strip()  ## 改行除去
+        line = self.command.split('//')[0]  ## コメント除去
+        self.command = line.strip()         ## 改行除去
 
     def commandType(self):
         '''
