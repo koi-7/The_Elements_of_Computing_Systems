@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 # coding: utf-8
 
+import re
 import Parser as ps
 
 jump_addr = 0           ## writeArithmetic で使用
@@ -46,7 +47,10 @@ class CodeWriter:
         self.f.write('M=D'  + '\n')
 
         ## call Sys.init
-        self.writeCall('Sys.init', 0)
+        pattern = r'/Sys\.vm$'
+        m = re.findall(pattern, self.input_file)
+        if m:
+            self.writeCall('Sys.init', 0)
 
     def writeArithmetic(self, command):
         '''
@@ -335,28 +339,72 @@ class CodeWriter:
         '''
         global return_addr_number
 
-        return_addr_label = 'return_address' + str(return_addr_number)
+        return_addr_label = \
+            functionName + '$return_address' + str(return_addr_number)
         return_addr_number += 1
 
         self.f.write('// call \n')
         ## push return-address
         self.f.write('@' + return_addr_label + '\n')
+        self.f.write('D=A' + '\n')
+        self.f.write('@SP' + '\n')
+        self.f.write('M=M+1' + '\n')
+        self.f.write('A=M-1' + '\n')
+        self.f.write('M=D' + '\n')
+
         ## push LCL
+        self.f.write('@LCL' + '\n')
+        self.f.write('D=M' + '\n')
+        self.f.write('@SP' + '\n')
+        self.f.write('M=M+1' + '\n')
+        self.f.write('A=M-1' + '\n')
+        self.f.write('M=D' + '\n')
 
         ## push ARG
+        self.f.write('@ARG' + '\n')
+        self.f.write('D=M' + '\n')
+        self.f.write('@SP' + '\n')
+        self.f.write('M=M+1' + '\n')
+        self.f.write('A=M-1' + '\n')
+        self.f.write('M=D' + '\n')
 
         ## push THIS
+        self.f.write('@THIS' + '\n')
+        self.f.write('D=M' + '\n')
+        self.f.write('@SP' + '\n')
+        self.f.write('M=M+1' + '\n')
+        self.f.write('A=M-1' + '\n')
+        self.f.write('M=D' + '\n')
 
         ## push THAT
+        self.f.write('@THAT' + '\n')
+        self.f.write('D=M' + '\n')
+        self.f.write('@SP' + '\n')
+        self.f.write('M=M+1' + '\n')
+        self.f.write('A=M-1' + '\n')
+        self.f.write('M=D' + '\n')
 
         ## ARG = SP-n-5
-        self.f.write('' + '\n')
+        self.f.write('@' + str(numArgs) + '\n')
+        self.f.write('D=A' + '\n')
+        self.f.write('@5' + '\n')
+        self.f.write('D=D+A' + '\n')
+        self.f.write('@SP' + '\n')
+        self.f.write('D=M-D' + '\n')
+        self.f.write('@ARG' + '\n')
+        self.f.write('M=D' + '\n')
+
         ## LCL = SP
-        self.f.write('' + '\n')
+        self.f.write('@SP' + '\n')
+        self.f.write('D=M' + '\n')
+        self.f.write('@LCL' + '\n')
+        self.f.write('M=D' + '\n')
+
         ## goto f
         self.f.write('@' + functionName + '\n')
         self.f.write('A=M' + '\n')
         self.f.write('0;JMP' + '\n')
+
         ## (return-address)
         self.writeLabel(return_addr_label)
 

@@ -16,16 +16,22 @@ def main():
             path = path + '/'
         file_list = glob.glob(path + '*.vm')
         output_file = path + path.split('/')[-2] + '.asm'
-
-    print(file_list)
-    print(output_file)
+        ## Sys.vm を file_list の先頭に
+        index_of_sys = file_list.index(path + 'Sys.vm')
+        file_list[0], file_list[index_of_sys] = \
+            file_list[index_of_sys], file_list[0]
 
     c = cw.CodeWriter(output_file)
-    c.writeInit()
+    iter_counter = 0
+
+    print(file_list)
 
     for file in file_list:
         c.setFileName(file)
-        with ps.Parser(c.input_file) as p:
+        if iter_counter == 0:  ## 初回だけ writeInit() を呼ぶ
+            c.writeInit()
+            iter_counter += 1
+        with ps.Parser(file) as p:
             while p.hasMoreCommands():
                 p.advance()
 
