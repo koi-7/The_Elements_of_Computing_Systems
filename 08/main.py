@@ -34,6 +34,7 @@ def main():
         with ps.Parser(file) as p:
             while p.hasMoreCommands():
                 p.advance()
+                print(p.command)
 
                 c.f.write('\n')
 

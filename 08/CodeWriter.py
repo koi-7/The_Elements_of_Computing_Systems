@@ -4,9 +4,9 @@
 import re
 import Parser as ps
 
-jump_addr = 0           ## writeArithmetic で使用
-label_number = 0        ## writeIf で使用
+jump_number = 0           ## writeArithmetic で使用
 return_addr_number = 0  ## writeCall で使用
+function_name = ''
 
 segment_dict = {
     'local':    1,  ## LCL
@@ -40,6 +40,8 @@ class CodeWriter:
         VM の初期化を行うアセンブリコードを書く
         void -> void
         '''
+        global function_name
+
         ## SP=256
         self.f.write('@256' + '\n')
         self.f.write('D=A'  + '\n')
@@ -50,6 +52,7 @@ class CodeWriter:
         pattern = r'/Sys\.vm$'
         m = re.findall(pattern, self.input_file)
         if m:
+            function_name = 'Sys.init'
             self.writeCall('Sys.init', 0)
 
     def writeArithmetic(self, command):
@@ -57,7 +60,7 @@ class CodeWriter:
         与えられた算術コマンドをアセンブリコードに変換し、それを書き込む
         str -> void
         '''
-        global jump_addr
+        global jump_number
 
         if command == 'add':
             self.f.write('// add \n')
@@ -88,9 +91,9 @@ class CodeWriter:
             self.f.write('M=M+1' + '\n')
 
         elif command == 'eq':
-            jump1 = 'jump' + str(jump_addr)
-            jump2 = 'jump' + str(jump_addr + 1)
-            jump_addr += 2
+            jump1 = 'jump' + str(jump_number)
+            jump2 = 'jump' + str(jump_number + 1)
+            jump_number += 2
             self.f.write('// eq \n')
             self.f.write('@SP'                + '\n')
             self.f.write('M=M-1'              + '\n')
@@ -115,9 +118,9 @@ class CodeWriter:
             self.f.write('(' + jump2 + ')' + '\n')
 
         elif command == 'gt':
-            jump1 = 'jump' + str(jump_addr)
-            jump2 = 'jump' + str(jump_addr + 1)
-            jump_addr += 2
+            jump1 = 'jump' + str(jump_number)
+            jump2 = 'jump' + str(jump_number + 1)
+            jump_number += 2
             self.f.write('// gt \n')
             self.f.write('@SP'                + '\n')
             self.f.write('M=M-1'              + '\n')
@@ -142,9 +145,9 @@ class CodeWriter:
             self.f.write('(' + jump2 + ')' + '\n')
 
         elif command == 'lt':
-            jump1 = 'jump' + str(jump_addr)
-            jump2 = 'jump' + str(jump_addr + 1)
-            jump_addr += 2
+            jump1 = 'jump' + str(jump_number)
+            jump2 = 'jump' + str(jump_number + 1)
+            jump_number += 2
             self.f.write('// lt \n')
             self.f.write('@SP'                + '\n')
             self.f.write('M=M-1'              + '\n')
@@ -205,8 +208,9 @@ class CodeWriter:
         global segment_dict
 
         if command == ps.C_PUSH:
+            self.f.write('// push ' + segment + ' ' + str(index) + '\n')
             if segment == 'argument' or segment == 'local' or segment == 'this' or segment == 'that':
-                self.f.write('// push argument, local, this, that \n')
+                #self.f.write('// push ' + segment + ' ' + str(index) + '\n')
                 self.f.write('@' + str(index)                 + '\n')
                 self.f.write('D=A'                            + '\n')
                 self.f.write('@' + str(segment_dict[segment]) + '\n')
@@ -217,7 +221,7 @@ class CodeWriter:
                 self.f.write('A=M-1'                          + '\n')
                 self.f.write('M=D'                            + '\n')
             elif segment == 'pointer' or segment == 'temp':
-                self.f.write('// push pointer, temp \n')
+                #self.f.write('// push pointer, temp \n')
                 self.f.write('@' + str(segment_dict[segment] + index) + '\n')
                 self.f.write('D=M'                                    + '\n')
                 self.f.write('@SP'                                    + '\n')
@@ -225,7 +229,7 @@ class CodeWriter:
                 self.f.write('A=M-1'                                  + '\n')
                 self.f.write('M=D'                                    + '\n')
             elif segment == 'constant':
-                self.f.write('// push constant \n')
+                #self.f.write('// push constant \n')
                 self.f.write('@' + str(index) + '\n')
                 self.f.write('D=A'            + '\n')
                 self.f.write('@SP'            + '\n')
@@ -233,7 +237,7 @@ class CodeWriter:
                 self.f.write('A=M-1'          + '\n')
                 self.f.write('M=D'            + '\n')
             elif segment == 'static':
-                self.f.write('// push static \n')
+                #self.f.write('// push static \n')
                 self.f.write('@' + str(index)                 + '\n')
                 self.f.write('D=A'                            + '\n')
                 self.f.write('@' + str(segment_dict[segment]) + '\n')
@@ -245,8 +249,9 @@ class CodeWriter:
                 self.f.write('M=D'                            + '\n')
 
         elif command == ps.C_POP:
+            self.f.write('// pop ' + segment + ' ' + str(index) + '\n')
             if segment == 'argument' or segment == 'local' or segment == 'this' or segment == 'that':
-                self.f.write('// pop argument, local, this, that \n')
+                #self.f.write('// pop argument, local, this, that \n')
                 self.f.write('@' + str(index)                 + '\n')
                 self.f.write('D=A'                            + '\n')
                 self.f.write('@' + str(segment_dict[segment]) + '\n')
@@ -262,7 +267,7 @@ class CodeWriter:
                 self.f.write('@SP'                            + '\n')
                 self.f.write('M=M-1'                          + '\n')
             elif segment == 'pointer' or segment == 'temp':
-                self.f.write('// pop pointer or temp\n')
+                #self.f.write('// pop pointer or temp\n')
                 self.f.write('@' + str(segment_dict[segment] + index) + '\n')
                 self.f.write('D=A'                                    + '\n')
                 self.f.write('@SP'                                    + '\n')
@@ -276,8 +281,8 @@ class CodeWriter:
                 self.f.write('@SP'                                    + '\n')
                 self.f.write('M=M-1'                                  + '\n')
             elif segment == 'static':
-                ## （今は）シンボル、複数ファイルがないので以下の通り
-                self.f.write('// pop static\n')
+                # 手つかず
+                #self.f.write('// pop static\n')
                 self.f.write('@' + str(index)                 + '\n')
                 self.f.write('D=A'                            + '\n')
                 self.f.write('@' + str(segment_dict[segment]) + '\n')
@@ -298,17 +303,20 @@ class CodeWriter:
         label コマンドを行うアセンブリコードを書く
         str -> void
         '''
+        global function_name
 
         self.f.write('// label \n')
-        self.f.write('(' + label + ')' + '\n')
+        self.f.write('(' + function_name + '$' + label + ')' + '\n')
 
     def writeGoto(self, label):
         '''
         goto コマンドを行うアセンブリコードを書く
         str -> void
         '''
-        self.f.write('// goto \n')
-        self.f.write('@' + label + '\n')
+        global function_name
+
+        self.f.write('// goto ' + label + '\n')
+        self.f.write('@' + function_name + '$' + label + '\n')
         self.f.write('0;JMP' + '\n')
 
     def writeIf(self, label):
@@ -316,34 +324,27 @@ class CodeWriter:
         if-goto コマンドを行うアセンブリコードを書く
         str -> void
         '''
-        global label_number
-
-        new_label = 'Label' + str(label_number)
-        label_number += 1
+        global function_name
 
         self.f.write('// if-goto \n')
         self.f.write('@SP' + '\n')
         self.f.write('M=M-1' + '\n')
         self.f.write('A=M' + '\n')
         self.f.write('D=M' + '\n')
-        self.f.write('@' + new_label + '\n')
-        self.f.write('D;JEQ' + '\n')
-        self.f.write('@' + label + '\n')
-        self.f.write('0;JMP' + '\n')
-        self.f.write('(' + new_label + ')' + '\n')
+        self.f.write('@' + function_name + '$' + label + '\n')
+        self.f.write('D;JNE' + '\n')
 
     def writeCall(self, functionName, numArgs):
         '''
         call コマンドを行うアセンブリコードを書く
         str, int -> void
         '''
-        global return_addr_number
+        global return_addr_number, function_name
 
-        return_addr_label = \
-            functionName + '$return_address' + str(return_addr_number)
+        return_addr_label = 'return_address' + str(return_addr_number)
         return_addr_number += 1
 
-        self.f.write('// call \n')
+        self.f.write('// call ' + functionName + ' ' + numArgs + '\n')
         ## push return-address
         self.f.write('@' + return_addr_label + '\n')
         self.f.write('D=A' + '\n')
@@ -402,11 +403,10 @@ class CodeWriter:
 
         ## goto f
         self.f.write('@' + functionName + '\n')
-        self.f.write('A=M' + '\n')
         self.f.write('0;JMP' + '\n')
 
         ## (return-address)
-        self.writeLabel(return_addr_label)
+        self.f.write('(' + return_addr_label + ')' + '\n')
 
     def writeReturn(self):
         '''
@@ -429,7 +429,14 @@ class CodeWriter:
         self.f.write('M=D' + '\n')
         ## *ARG = pop()
         self.writePushPop(ps.C_POP, 'argument', 0)
-        self.f.write('///// pop ここまで ここから return の続き /////' + '\n')
+        # self.f.write('@SP' + '\n')
+        # self.f.write('M=M-1' + '\n')
+        # self.f.write('A=M' + '\n')
+        # self.f.write('D=M' + '\n')
+        # self.f.write('@ARG' + '\n')
+        # self.f.write('A=M' + '\n')
+        # self.f.write('M=D' + '\n')
+        self.f.write('// pop ここまで 以下 return の続き' + '\n')
         ## SP = ARG + 1
         self.f.write('@ARG' + '\n')
         self.f.write('D=M+1' + '\n')
@@ -477,7 +484,10 @@ class CodeWriter:
         function コマンドを行うアセンブリコードを書く
         str, int -> void
         '''
-        self.f.write('// function \n')
+        global function_name
+
+        function_name = functionName
+        self.f.write('// function ' + functionName + ' ' + str(numLocals) + '\n')
         self.f.write('(' + functionName + ')' + '\n')
         for i in range(numLocals):
             self.writePushPop(ps.C_PUSH, 'constant', 0)
