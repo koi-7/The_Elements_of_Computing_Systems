@@ -244,15 +244,14 @@ class CodeWriter:
                 self.f.write('M=D'            + '\n')
             elif segment == 'static':
                 #self.f.write('// push static \n')
-                self.f.write('@' + str(index)                 + '\n')
-                self.f.write('D=A'                            + '\n')
-                self.f.write('@' + str(segment_dict[segment]) + '\n')
-                self.f.write('A=D+M'                          + '\n')
-                self.f.write('D=M'                            + '\n')
-                self.f.write('@SP'                            + '\n')
-                self.f.write('M=M+1'                          + '\n')
-                self.f.write('A=M-1'                          + '\n')
-                self.f.write('M=D'                            + '\n')
+                var_name = self.input_file + '.' + str(index)
+
+                self.f.write('@' + var_name         + '\n')
+                self.f.write('D=M'         + '\n')
+                self.f.write('@SP'         + '\n')
+                self.f.write('M=M+1'         + '\n')
+                self.f.write('A=M-1'         + '\n')
+                self.f.write('M=D'         + '\n')
 
         elif command == ps.C_POP:
             self.f.write('// pop ' + segment + ' ' + str(index) + '\n')
@@ -289,20 +288,18 @@ class CodeWriter:
             elif segment == 'static':
                 # 手つかず
                 #self.f.write('// pop static\n')
-                self.f.write('@' + str(index)                 + '\n')
-                self.f.write('D=A'                            + '\n')
-                self.f.write('@' + str(segment_dict[segment]) + '\n')
-                self.f.write('D=D+M'                          + '\n')
-                self.f.write('@SP'                            + '\n')
-                self.f.write('A=M'                            + '\n')
-                self.f.write('M=D'                            + '\n')
-                self.f.write('A=A-1'                          + '\n')
-                self.f.write('D=M'                            + '\n')
-                self.f.write('A=A+1'                          + '\n')
-                self.f.write('A=M'                            + '\n')
-                self.f.write('M=D'                            + '\n')
-                self.f.write('@SP'                            + '\n')
+                var_name = self.input_file + '.' + str(index)
+                self.f.write('@' + var_name                          + '\n')
+                self.f.write('D=A'                          + '\n')
+                self.f.write('@SP'                          + '\n')
                 self.f.write('M=M-1'                          + '\n')
+                self.f.write('A=M+1'                          + '\n')
+                self.f.write('M=D'                          + '\n')
+                self.f.write('A=A-1'                          + '\n')
+                self.f.write('D=M'                          + '\n')
+                self.f.write('A=A+1'                          + '\n')
+                self.f.write('A=M'                          + '\n')
+                self.f.write('M=D'                          + '\n')
 
     def writeLabel(self, label):
         '''
