@@ -350,7 +350,7 @@ class CodeWriter:
         return_addr_label = 'return_address' + str(return_addr_number)
         return_addr_number += 1
 
-        self.f.write('// call ' + functionName + ' ' + numArgs + '\n')
+        self.f.write('// call ' + functionName + ' ' + str(numArgs) + '\n')
         ## push return-address
         self.f.write('@' + return_addr_label + '\n')
         self.f.write('D=A' + '\n')
