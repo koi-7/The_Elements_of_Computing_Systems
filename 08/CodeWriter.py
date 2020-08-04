@@ -1,10 +1,10 @@
 #!/usr/bin/python3
 # coding: utf-8
 
-import re, os
+import os
 import Parser as ps
 
-jump_number = 0           ## writeArithmetic で使用
+jump_number = 0         ## writeArithmetic で使用
 return_addr_number = 0  ## writeCall で使用
 function_name = ''
 
@@ -33,10 +33,8 @@ class CodeWriter:
         CodeWriter モジュールに新しい VM ファイルの変換が開始したことを知らせる
         str -> void
         '''
-        # self.input_file = fileName
         fname = os.path.basename(fileName)
         self.input_file = fname.replace('.vm', '')
-        print(self.input_file)
 
     def writeInit(self):
         '''
@@ -52,11 +50,6 @@ class CodeWriter:
         self.f.write('M=D'  + '\n')
 
         ## call Sys.init
-        # pattern = r'/Sys\.vm$'
-        # m = re.findall(pattern, self.input_file)
-        # if m:
-        #     function_name = 'Sys.init'
-        #     self.writeCall('Sys.init', 0)
         if self.input_file == 'Sys':
             function_name = 'Sys.init'
             self.writeCall('Sys.init', 0)
@@ -101,26 +94,26 @@ class CodeWriter:
             jump2 = 'jump' + str(jump_number + 1)
             jump_number += 2
             self.f.write('// eq \n')
-            self.f.write('@SP'                + '\n')
-            self.f.write('M=M-1'              + '\n')
-            self.f.write('A=M'                + '\n')
-            self.f.write('D=M'                + '\n')
-            self.f.write('A=A-1'              + '\n')
-            self.f.write('D=M-D'              + '\n')
+            self.f.write('@SP'             + '\n')
+            self.f.write('M=M-1'           + '\n')
+            self.f.write('A=M'             + '\n')
+            self.f.write('D=M'             + '\n')
+            self.f.write('A=A-1'           + '\n')
+            self.f.write('D=M-D'           + '\n')
             self.f.write('@' + jump1       + '\n')
-            self.f.write('D;JEQ'              + '\n')
-            self.f.write('@SP'                + '\n')
-            self.f.write('A=M'                + '\n')
-            self.f.write('A=A-1'              + '\n')
-            self.f.write('M=0'                + '\n')
+            self.f.write('D;JEQ'           + '\n')
+            self.f.write('@SP'             + '\n')
+            self.f.write('A=M'             + '\n')
+            self.f.write('A=A-1'           + '\n')
+            self.f.write('M=0'             + '\n')
             self.f.write('@' + jump2       + '\n')
-            self.f.write('0;JMP'              + '\n')
+            self.f.write('0;JMP'           + '\n')
             self.f.write('(' + jump1 + ')' + '\n')
-            self.f.write('@SP'                + '\n')
-            self.f.write('A=M'                + '\n')
-            self.f.write('A=A-1'              + '\n')
-            self.f.write('M=0'                + '\n')
-            self.f.write('M=-1'               + '\n')
+            self.f.write('@SP'             + '\n')
+            self.f.write('A=M'             + '\n')
+            self.f.write('A=A-1'           + '\n')
+            self.f.write('M=0'             + '\n')
+            self.f.write('M=-1'            + '\n')
             self.f.write('(' + jump2 + ')' + '\n')
 
         elif command == 'gt':
@@ -128,26 +121,26 @@ class CodeWriter:
             jump2 = 'jump' + str(jump_number + 1)
             jump_number += 2
             self.f.write('// gt \n')
-            self.f.write('@SP'                + '\n')
-            self.f.write('M=M-1'              + '\n')
-            self.f.write('A=M'                + '\n')
-            self.f.write('D=M'                + '\n')
-            self.f.write('A=A-1'              + '\n')
-            self.f.write('D=M-D'              + '\n')
+            self.f.write('@SP'             + '\n')
+            self.f.write('M=M-1'           + '\n')
+            self.f.write('A=M'             + '\n')
+            self.f.write('D=M'             + '\n')
+            self.f.write('A=A-1'           + '\n')
+            self.f.write('D=M-D'           + '\n')
             self.f.write('@' + jump1       + '\n')
-            self.f.write('D;JGT'              + '\n')
-            self.f.write('@SP'                + '\n')
-            self.f.write('A=M'                + '\n')
-            self.f.write('A=A-1'              + '\n')
-            self.f.write('M=0'                + '\n')
+            self.f.write('D;JGT'           + '\n')
+            self.f.write('@SP'             + '\n')
+            self.f.write('A=M'             + '\n')
+            self.f.write('A=A-1'           + '\n')
+            self.f.write('M=0'             + '\n')
             self.f.write('@' + jump2       + '\n')
-            self.f.write('0;JMP'              + '\n')
+            self.f.write('0;JMP'           + '\n')
             self.f.write('(' + jump1 + ')' + '\n')
-            self.f.write('@SP'                + '\n')
-            self.f.write('A=M'                + '\n')
-            self.f.write('A=A-1'              + '\n')
-            self.f.write('M=0'                + '\n')
-            self.f.write('M=-1'               + '\n')
+            self.f.write('@SP'             + '\n')
+            self.f.write('A=M'             + '\n')
+            self.f.write('A=A-1'           + '\n')
+            self.f.write('M=0'             + '\n')
+            self.f.write('M=-1'            + '\n')
             self.f.write('(' + jump2 + ')' + '\n')
 
         elif command == 'lt':
@@ -155,26 +148,26 @@ class CodeWriter:
             jump2 = 'jump' + str(jump_number + 1)
             jump_number += 2
             self.f.write('// lt \n')
-            self.f.write('@SP'                + '\n')
-            self.f.write('M=M-1'              + '\n')
-            self.f.write('A=M'                + '\n')
-            self.f.write('D=M'                + '\n')
-            self.f.write('A=A-1'              + '\n')
-            self.f.write('D=M-D'              + '\n')
+            self.f.write('@SP'             + '\n')
+            self.f.write('M=M-1'           + '\n')
+            self.f.write('A=M'             + '\n')
+            self.f.write('D=M'             + '\n')
+            self.f.write('A=A-1'           + '\n')
+            self.f.write('D=M-D'           + '\n')
             self.f.write('@' + jump1       + '\n')
-            self.f.write('D;JLT'              + '\n')
-            self.f.write('@SP'                + '\n')
-            self.f.write('A=M'                + '\n')
-            self.f.write('A=A-1'              + '\n')
-            self.f.write('M=0'                + '\n')
+            self.f.write('D;JLT'           + '\n')
+            self.f.write('@SP'             + '\n')
+            self.f.write('A=M'             + '\n')
+            self.f.write('A=A-1'           + '\n')
+            self.f.write('M=0'             + '\n')
             self.f.write('@' + jump2       + '\n')
-            self.f.write('0;JMP'              + '\n')
+            self.f.write('0;JMP'           + '\n')
             self.f.write('(' + jump1 + ')' + '\n')
-            self.f.write('@SP'                + '\n')
-            self.f.write('A=M'                + '\n')
-            self.f.write('A=A-1'              + '\n')
-            self.f.write('M=0'                + '\n')
-            self.f.write('M=-1'               + '\n')
+            self.f.write('@SP'             + '\n')
+            self.f.write('A=M'             + '\n')
+            self.f.write('A=A-1'           + '\n')
+            self.f.write('M=0'             + '\n')
+            self.f.write('M=-1'            + '\n')
             self.f.write('(' + jump2 + ')' + '\n')
 
         elif command == 'and':
@@ -216,7 +209,6 @@ class CodeWriter:
         if command == ps.C_PUSH:
             self.f.write('// push ' + segment + ' ' + str(index) + '\n')
             if segment == 'argument' or segment == 'local' or segment == 'this' or segment == 'that':
-                #self.f.write('// push ' + segment + ' ' + str(index) + '\n')
                 self.f.write('@' + str(index)                 + '\n')
                 self.f.write('D=A'                            + '\n')
                 self.f.write('@' + str(segment_dict[segment]) + '\n')
@@ -227,7 +219,6 @@ class CodeWriter:
                 self.f.write('A=M-1'                          + '\n')
                 self.f.write('M=D'                            + '\n')
             elif segment == 'pointer' or segment == 'temp':
-                #self.f.write('// push pointer, temp \n')
                 self.f.write('@' + str(segment_dict[segment] + index) + '\n')
                 self.f.write('D=M'                                    + '\n')
                 self.f.write('@SP'                                    + '\n')
@@ -235,7 +226,6 @@ class CodeWriter:
                 self.f.write('A=M-1'                                  + '\n')
                 self.f.write('M=D'                                    + '\n')
             elif segment == 'constant':
-                #self.f.write('// push constant \n')
                 self.f.write('@' + str(index) + '\n')
                 self.f.write('D=A'            + '\n')
                 self.f.write('@SP'            + '\n')
@@ -243,20 +233,17 @@ class CodeWriter:
                 self.f.write('A=M-1'          + '\n')
                 self.f.write('M=D'            + '\n')
             elif segment == 'static':
-                #self.f.write('// push static \n')
                 var_name = self.input_file + '.' + str(index)
-
-                self.f.write('@' + var_name         + '\n')
-                self.f.write('D=M'         + '\n')
-                self.f.write('@SP'         + '\n')
-                self.f.write('M=M+1'         + '\n')
-                self.f.write('A=M-1'         + '\n')
-                self.f.write('M=D'         + '\n')
+                self.f.write('@' + var_name + '\n')
+                self.f.write('D=M'          + '\n')
+                self.f.write('@SP'          + '\n')
+                self.f.write('M=M+1'        + '\n')
+                self.f.write('A=M-1'        + '\n')
+                self.f.write('M=D'          + '\n')
 
         elif command == ps.C_POP:
             self.f.write('// pop ' + segment + ' ' + str(index) + '\n')
             if segment == 'argument' or segment == 'local' or segment == 'this' or segment == 'that':
-                #self.f.write('// pop argument, local, this, that \n')
                 self.f.write('@' + str(index)                 + '\n')
                 self.f.write('D=A'                            + '\n')
                 self.f.write('@' + str(segment_dict[segment]) + '\n')
@@ -272,7 +259,6 @@ class CodeWriter:
                 self.f.write('@SP'                            + '\n')
                 self.f.write('M=M-1'                          + '\n')
             elif segment == 'pointer' or segment == 'temp':
-                #self.f.write('// pop pointer or temp\n')
                 self.f.write('@' + str(segment_dict[segment] + index) + '\n')
                 self.f.write('D=A'                                    + '\n')
                 self.f.write('@SP'                                    + '\n')
@@ -286,20 +272,18 @@ class CodeWriter:
                 self.f.write('@SP'                                    + '\n')
                 self.f.write('M=M-1'                                  + '\n')
             elif segment == 'static':
-                # 手つかず
-                #self.f.write('// pop static\n')
                 var_name = self.input_file + '.' + str(index)
-                self.f.write('@' + var_name                          + '\n')
-                self.f.write('D=A'                          + '\n')
-                self.f.write('@SP'                          + '\n')
-                self.f.write('M=M-1'                          + '\n')
-                self.f.write('A=M+1'                          + '\n')
-                self.f.write('M=D'                          + '\n')
-                self.f.write('A=A-1'                          + '\n')
-                self.f.write('D=M'                          + '\n')
-                self.f.write('A=A+1'                          + '\n')
-                self.f.write('A=M'                          + '\n')
-                self.f.write('M=D'                          + '\n')
+                self.f.write('@' + var_name + '\n')
+                self.f.write('D=A'          + '\n')
+                self.f.write('@SP'          + '\n')
+                self.f.write('M=M-1'        + '\n')
+                self.f.write('A=M+1'        + '\n')
+                self.f.write('M=D'          + '\n')
+                self.f.write('A=A-1'        + '\n')
+                self.f.write('D=M'          + '\n')
+                self.f.write('A=A+1'        + '\n')
+                self.f.write('A=M'          + '\n')
+                self.f.write('M=D'          + '\n')
 
     def writeLabel(self, label):
         '''
@@ -320,7 +304,7 @@ class CodeWriter:
 
         self.f.write('// goto ' + label + '\n')
         self.f.write('@' + function_name + '$' + label + '\n')
-        self.f.write('0;JMP' + '\n')
+        self.f.write('0;JMP'                           + '\n')
 
     def writeIf(self, label):
         '''
@@ -330,12 +314,12 @@ class CodeWriter:
         global function_name
 
         self.f.write('// if-goto \n')
-        self.f.write('@SP' + '\n')
-        self.f.write('M=M-1' + '\n')
-        self.f.write('A=M' + '\n')
-        self.f.write('D=M' + '\n')
+        self.f.write('@SP'                             + '\n')
+        self.f.write('M=M-1'                           + '\n')
+        self.f.write('A=M'                             + '\n')
+        self.f.write('D=M'                             + '\n')
         self.f.write('@' + function_name + '$' + label + '\n')
-        self.f.write('D;JNE' + '\n')
+        self.f.write('D;JNE'                           + '\n')
 
     def writeCall(self, functionName, numArgs):
         '''
@@ -350,64 +334,56 @@ class CodeWriter:
         self.f.write('// call ' + functionName + ' ' + str(numArgs) + '\n')
         ## push return-address
         self.f.write('@' + return_addr_label + '\n')
-        self.f.write('D=A' + '\n')
-        self.f.write('@SP' + '\n')
-        self.f.write('M=M+1' + '\n')
-        self.f.write('A=M-1' + '\n')
-        self.f.write('M=D' + '\n')
-
+        self.f.write('D=A'                   + '\n')
+        self.f.write('@SP'                   + '\n')
+        self.f.write('M=M+1'                 + '\n')
+        self.f.write('A=M-1'                 + '\n')
+        self.f.write('M=D'                   + '\n')
         ## push LCL
-        self.f.write('@LCL' + '\n')
-        self.f.write('D=M' + '\n')
-        self.f.write('@SP' + '\n')
+        self.f.write('@LCL'  + '\n')
+        self.f.write('D=M'   + '\n')
+        self.f.write('@SP'   + '\n')
         self.f.write('M=M+1' + '\n')
         self.f.write('A=M-1' + '\n')
-        self.f.write('M=D' + '\n')
-
+        self.f.write('M=D'   + '\n')
         ## push ARG
-        self.f.write('@ARG' + '\n')
-        self.f.write('D=M' + '\n')
-        self.f.write('@SP' + '\n')
+        self.f.write('@ARG'  + '\n')
+        self.f.write('D=M'   + '\n')
+        self.f.write('@SP'   + '\n')
         self.f.write('M=M+1' + '\n')
         self.f.write('A=M-1' + '\n')
-        self.f.write('M=D' + '\n')
-
+        self.f.write('M=D'   + '\n')
         ## push THIS
         self.f.write('@THIS' + '\n')
-        self.f.write('D=M' + '\n')
-        self.f.write('@SP' + '\n')
+        self.f.write('D=M'   + '\n')
+        self.f.write('@SP'   + '\n')
         self.f.write('M=M+1' + '\n')
         self.f.write('A=M-1' + '\n')
-        self.f.write('M=D' + '\n')
-
+        self.f.write('M=D'   + '\n')
         ## push THAT
         self.f.write('@THAT' + '\n')
-        self.f.write('D=M' + '\n')
-        self.f.write('@SP' + '\n')
+        self.f.write('D=M'   + '\n')
+        self.f.write('@SP'   + '\n')
         self.f.write('M=M+1' + '\n')
         self.f.write('A=M-1' + '\n')
-        self.f.write('M=D' + '\n')
-
+        self.f.write('M=D'   + '\n')
         ## ARG = SP-n-5
         self.f.write('@' + str(numArgs) + '\n')
-        self.f.write('D=A' + '\n')
-        self.f.write('@5' + '\n')
-        self.f.write('D=D+A' + '\n')
-        self.f.write('@SP' + '\n')
-        self.f.write('D=M-D' + '\n')
-        self.f.write('@ARG' + '\n')
-        self.f.write('M=D' + '\n')
-
+        self.f.write('D=A'              + '\n')
+        self.f.write('@5'               + '\n')
+        self.f.write('D=D+A'            + '\n')
+        self.f.write('@SP'              + '\n')
+        self.f.write('D=M-D'            + '\n')
+        self.f.write('@ARG'             + '\n')
+        self.f.write('M=D'              + '\n')
         ## LCL = SP
-        self.f.write('@SP' + '\n')
-        self.f.write('D=M' + '\n')
+        self.f.write('@SP'  + '\n')
+        self.f.write('D=M'  + '\n')
         self.f.write('@LCL' + '\n')
-        self.f.write('M=D' + '\n')
-
+        self.f.write('M=D'  + '\n')
         ## goto f
         self.f.write('@' + functionName + '\n')
-        self.f.write('0;JMP' + '\n')
-
+        self.f.write('0;JMP'            + '\n')
         ## (return-address)
         self.f.write('(' + return_addr_label + ')' + '\n')
 
@@ -418,68 +394,61 @@ class CodeWriter:
         '''
         self.f.write('// return \n')
         ## FRAME = LCL
-        self.f.write('@LCL' + '\n')
-        self.f.write('D=M' + '\n')
+        self.f.write('@LCL'   + '\n')
+        self.f.write('D=M'    + '\n')
         self.f.write('@FRAME' + '\n')
-        self.f.write('M=D' + '\n')
+        self.f.write('M=D'    + '\n')
         ## RET = *(FRAME - 5)
-        self.f.write('@5' + '\n')
-        self.f.write('D=A' + '\n')
+        self.f.write('@5'     + '\n')
+        self.f.write('D=A'    + '\n')
         self.f.write('@FRAME' + '\n')
-        self.f.write('A=M-D' + '\n')
-        self.f.write('D=M' + '\n')
-        self.f.write('@RET' + '\n')
-        self.f.write('M=D' + '\n')
+        self.f.write('A=M-D'  + '\n')
+        self.f.write('D=M'    + '\n')
+        self.f.write('@RET'   + '\n')
+        self.f.write('M=D'    + '\n')
         ## *ARG = pop()
         self.writePushPop(ps.C_POP, 'argument', 0)
-        # self.f.write('@SP' + '\n')
-        # self.f.write('M=M-1' + '\n')
-        # self.f.write('A=M' + '\n')
-        # self.f.write('D=M' + '\n')
-        # self.f.write('@ARG' + '\n')
-        # self.f.write('A=M' + '\n')
-        # self.f.write('M=D' + '\n')
-        self.f.write('// pop ここまで 以下 return の続き' + '\n')
+        self.f.write('// 以下 return の続き' + '\n')
         ## SP = ARG + 1
-        self.f.write('@ARG' + '\n')
+        self.f.write('@ARG'  + '\n')
         self.f.write('D=M+1' + '\n')
-        self.f.write('@SP' + '\n')
-        self.f.write('M=D' + '\n')
+        self.f.write('@SP'   + '\n')
+        self.f.write('M=D'   + '\n')
         ## THAT = *(FRAME-1)
-        self.f.write('@1' + '\n')
-        self.f.write('D=A' + '\n')
+        self.f.write('@1'     + '\n')
+        self.f.write('D=A'    + '\n')
         self.f.write('@FRAME' + '\n')
-        self.f.write('A=M-D' + '\n')
-        self.f.write('D=M' + '\n')
-        self.f.write('@THAT' + '\n')
-        self.f.write('M=D' + '\n')
+        self.f.write('A=M-D'  + '\n')
+        self.f.write('D=M'    + '\n')
+        self.f.write('@THAT'  + '\n')
+        self.f.write('M=D'    + '\n')
         ## THIS = *(FRAME-2)
-        self.f.write('@2' + '\n')
-        self.f.write('D=A' + '\n')
+        self.f.write('@2'     + '\n')
+        self.f.write('D=A'    + '\n')
         self.f.write('@FRAME' + '\n')
-        self.f.write('A=M-D' + '\n')
-        self.f.write('D=M' + '\n')
-        self.f.write('@THIS' + '\n')
-        self.f.write('M=D' + '\n')
+        self.f.write('A=M-D'  + '\n')
+        self.f.write('D=M'    + '\n')
+        self.f.write('@THIS'  + '\n')
+        self.f.write('M=D'    + '\n')
         ## ARG = *(FRAME-3)
-        self.f.write('@3' + '\n')
-        self.f.write('D=A' + '\n')
+        self.f.write('@3'     + '\n')
+        self.f.write('D=A'    + '\n')
         self.f.write('@FRAME' + '\n')
-        self.f.write('A=M-D' + '\n')
-        self.f.write('D=M' + '\n')
-        self.f.write('@ARG' + '\n')
-        self.f.write('M=D' + '\n')
+        self.f.write('A=M-D'  + '\n')
+        self.f.write('D=M'    + '\n')
+        self.f.write('@ARG'   + '\n')
+        self.f.write('M=D'    + '\n')
         ## LCL = *(FRAME-4)
-        self.f.write('@4' + '\n')
-        self.f.write('D=A' + '\n')
+        self.f.write('@4'     + '\n')
+        self.f.write('D=A'    + '\n')
         self.f.write('@FRAME' + '\n')
-        self.f.write('A=M-D' + '\n')
-        self.f.write('D=M' + '\n')
-        self.f.write('@LCL' + '\n')
-        self.f.write('M=D' + '\n')
+        self.f.write('A=M-D'  + '\n')
+        self.f.write('D=M'    + '\n')
+        self.f.write('@LCL'   + '\n')
+        self.f.write('M=D'    + '\n')
         ## goto RET
-        self.f.write('@RET' + '\n')
-        self.f.write('A=M' + '\n')
+        self.f.write('@RET'  + '\n')
+        self.f.write('A=M'   + '\n')
         self.f.write('0;JMP' + '\n')
 
     def writeFunction(self, functionName, numLocals):

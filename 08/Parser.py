@@ -35,11 +35,11 @@ class Parser:
         '''
         while True:
             line = self.f.readline()
-            if line == '':
+            if line == '':                       ## ファイルの終端
                 return False
-            elif re.match(r'^\n$|^/{2}', line):
+            elif re.match(r'^\n$|^/{2}', line):  ## 改行のみもしくはコメントのみ
                 continue
-            else:
+            else:                                ## コマンドを含む行
                 self.command = line
                 return True
 

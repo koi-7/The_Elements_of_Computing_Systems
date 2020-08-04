@@ -24,8 +24,6 @@ def main():
     c = cw.CodeWriter(output_file)
     iter_counter = 0
 
-    print(file_list)
-
     for file in file_list:
         c.setFileName(file)
         if iter_counter == 0:  ## 初回だけ writeInit() を呼ぶ
@@ -34,7 +32,6 @@ def main():
         with ps.Parser(file) as p:
             while p.hasMoreCommands():
                 p.advance()
-                print(p.command)
 
                 c.f.write('\n')
 
