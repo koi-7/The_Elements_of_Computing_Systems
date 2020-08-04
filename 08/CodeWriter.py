@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # coding: utf-8
 
-import re
+import re, os
 import Parser as ps
 
 jump_number = 0           ## writeArithmetic で使用
@@ -33,7 +33,10 @@ class CodeWriter:
         CodeWriter モジュールに新しい VM ファイルの変換が開始したことを知らせる
         str -> void
         '''
-        self.input_file = fileName
+        # self.input_file = fileName
+        fname = os.path.basename(fileName)
+        self.input_file = fname.replace('.vm', '')
+        print(self.input_file)
 
     def writeInit(self):
         '''
@@ -49,9 +52,12 @@ class CodeWriter:
         self.f.write('M=D'  + '\n')
 
         ## call Sys.init
-        pattern = r'/Sys\.vm$'
-        m = re.findall(pattern, self.input_file)
-        if m:
+        # pattern = r'/Sys\.vm$'
+        # m = re.findall(pattern, self.input_file)
+        # if m:
+        #     function_name = 'Sys.init'
+        #     self.writeCall('Sys.init', 0)
+        if self.input_file == 'Sys':
             function_name = 'Sys.init'
             self.writeCall('Sys.init', 0)
 
