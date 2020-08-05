@@ -44,8 +44,6 @@ symbol_set = {
     '-', '*', '/', '&', '|', '<', '>', '=', '~'
 }
 
-indent_level = 0
-
 class JackTokenizer:
     def __init__(self, input_file):
         '''
@@ -56,23 +54,51 @@ class JackTokenizer:
         self.token_list = []
         self.f = open(input_file, 'rt')
 
+
     def hasMoreTokens(self):
         '''
         入力にまだトークンは存在するか？
         void -> bool
         '''
+        API_comment = False
+
         while True:
+            self.token_list = []
             line = self.f.readline()
             if line == '':                     ## ファイルの終端
                 return False
-            elif re.match(r'^\s*\n$|^/', line):  ## 改行のみもしくはコメントのみ
+            elif re.match(r'^\s*\n$|^\s*//.*\n$|^\s*/\*\*.*\*/\s*\n$', line):  ## 改行のみもしくはコメントのみ
                 continue
-            else:                              ## コマンドを含む行
-                # TODO: トークンリストを作って True を返す
+            elif re.match(r'^\s*/\*\*.*\n', line):  ## API コメントの始まり
+                API_comment = True
+                continue
+            elif re.match(r'.*\*/$', line):  ## API コメントの終わり
+                API_comment = False
+                continue
+            elif API_comment:  ## API コメントの途中
+                continue
+            else:                ## コメントを含むかもしれないその他の行
+                # コメントと改行の除去
                 line = line.split('//')[0]
                 line = line.strip()
-                list = line.split(' ')
-                print(list)
+
+                # トークンリストを作る
+                list = line.split('"')
+                if len(list) == 3:
+                    list[1] = '"' + list[1] + '"'
+                    token_list_left = self.make_token_list(list[0])
+                    token_list_right = self.make_token_list(list[2])
+                    self.token_list = token_list_left + [list[1]] + token_list_right
+                else:
+                    self.token_list = self.make_token_list(list[0])
+
+                while '' in self.token_list:
+                    self.token_list.remove('')
+                while ' ' in self.token_list:
+                    self.token_list.remove(' ')
+                # print(self.token_list)
+                # self.token_list = []
+
                 return True
 
     def advance(self):
@@ -81,7 +107,7 @@ class JackTokenizer:
         hasMoreTokens が True の場合のみ呼び出すことができる
         void -> void
         '''
-        self.token = self.token_list[0]
+        self.token = self.token_list.pop(0)
 
     def tokenType(self):
         '''
@@ -140,3 +166,29 @@ class JackTokenizer:
         void -> str
         '''
         return self.token.strip('"')
+
+    def make_token_list(self, line):
+        '''
+        " を含まない文字列からトークンのリストを作成する
+        str -> str list
+        '''
+        if line == '':
+            return ['']
+        elif len(line) == 1:
+            return [line]
+
+        list = []
+        left = 0
+        right = 1
+        for char in line:
+            if char == ' ' or char in symbol_set:
+                list.append(line[left:right-1])
+                list.append(char)
+                left = right
+                right = left + 1
+            else:
+                right += 1
+
+        return list
+
+

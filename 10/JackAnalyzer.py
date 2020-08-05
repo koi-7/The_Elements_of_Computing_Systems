@@ -10,29 +10,44 @@ def main():
 
     if os.path.isfile(path):
         file_list = [sys.argv[1]]
-        #output_file = os.path.splitext(path)[0] + '.xml'
     else:
         if path[-1] != '/':
             path = path + '/'
         file_list = glob.glob(path + '*.jack')
-        #output_file = path + path.split('/')[-2] + '.asm'
-        ## Sys.vm を file_list の先頭に
-        #index_of_sys = file_list.index(path + 'Sys.vm')
-        #file_list[0], file_list[index_of_sys] = \
-        #    file_list[index_of_sys], file_list[0]
 
     for input_file in file_list:
         j = jt.JackTokenizer(input_file)
         output_file = input_file.replace('.jack', 'T.xml')
-        c = ce.CompilationEngine(input_file, output_file)
+        fout = open(output_file, 'wt')
+
+        fout.write('<tokens>' + '\n')
+
         while j.hasMoreTokens():
-            pass
+            while j.token_list:
+                j.advance()
+                if j.tokenType() == jt.KEYWORD:
+                    fout.write('<keyword> ' + j.token + ' </keyword>' + '\n')
+                elif j.tokenType() == jt.SYMBOL:
+                    symbol = j.token
+                    if symbol == '<':
+                        symbol = '&lt;'
+                    elif symbol == '>':
+                        symbol = '&gt;'
+                    elif symbol == '&':
+                        symbol = '&amp;'
+                    fout.write('<symbol> ' + symbol + ' </symbol>' + '\n')
+                elif j.tokenType() == jt.IDENTIFIER:
+                    fout.write('<identifier> ' + j.token + ' </identifier>' + '\n')
+                elif j.tokenType() == jt.INT_CONST:
+                    fout.write('<integerConstant> ' + j.token + ' </integerConstant>' + '\n')
+                elif j.tokenType() == jt.STRING_CONST:
 
+                    fout.write('<stringConstant> ' + j.token.split('"')[1] + ' </stringConstant>' + '\n')
 
-
-
+        fout.write('</tokens>' + '\n')
 
         j.f.close()
+        fout.close()
 
 if __name__=='__main__':
     main()
