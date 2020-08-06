@@ -8,6 +8,8 @@ $ rename 's/.xml/_orig.xml/' *.xml
 
 ## 第1段階：トークナイザ
 
+xxxT.xml を出力するプログラムは JackAnalizer_forPhase1.py、JackTokenizer_forPhase1.py とし、第2段階のパーサとは別のプログラムとして書いた。
+
 ### 方針
 
 1. 1行読んでコメントもしくは API コメントの途中なら何もせずに次の行へ
