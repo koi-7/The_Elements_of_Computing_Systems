@@ -92,12 +92,11 @@ class JackTokenizer:
                 else:
                     self.token_list = self.make_token_list(list[0])
 
+                # リストから余分な要素を削除
                 while '' in self.token_list:
                     self.token_list.remove('')
                 while ' ' in self.token_list:
                     self.token_list.remove(' ')
-                # print(self.token_list)
-                # self.token_list = []
 
                 return True
 
@@ -141,7 +140,14 @@ class JackTokenizer:
         tokenType() が SYMBOL の場合のみ呼び出すことができる
         void -> str
         '''
-        return self.token
+        s = self.token
+        if s == '<':
+            s = '&lt;'
+        elif s == '>':
+            s = '&gt;'
+        elif s == '&':
+            s = '&amp;'
+        return s
 
     def identifier(self):
         '''
