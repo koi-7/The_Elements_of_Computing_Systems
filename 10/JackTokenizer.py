@@ -50,55 +50,19 @@ class JackTokenizer:
         入力ファイル / ストリームを開き、トークン化を行う準備をする
         str -> void
         '''
+        self.f = open(input_file, 'rt')
         self.token = ''
         self.token_list = []
-        self.f = open(input_file, 'rt')
-
 
     def hasMoreTokens(self):
         '''
         入力にまだトークンは存在するか？
         void -> bool
         '''
-        API_comment = False
-
-        while True:
-            self.token_list = []
-            line = self.f.readline()
-            if line == '':                     ## ファイルの終端
-                return False
-            elif re.match(r'^\s*\n$|^\s*//.*\n$|^\s*/\*\*.*\*/\s*\n$', line):  ## 改行のみもしくはコメントのみ
-                continue
-            elif re.match(r'^\s*/\*\*.*\n', line):  ## API コメントの始まり
-                API_comment = True
-                continue
-            elif re.match(r'.*\*/$', line):  ## API コメントの終わり
-                API_comment = False
-                continue
-            elif API_comment:  ## API コメントの途中
-                continue
-            else:                ## コメントを含むかもしれないその他の行
-                # コメントと改行の除去
-                line = line.split('//')[0]
-                line = line.strip()
-
-                # トークンリストを作る
-                list = line.split('"')
-                if len(list) == 3:
-                    list[1] = '"' + list[1] + '"'
-                    token_list_left = self.make_token_list(list[0])
-                    token_list_right = self.make_token_list(list[2])
-                    self.token_list = token_list_left + [list[1]] + token_list_right
-                else:
-                    self.token_list = self.make_token_list(list[0])
-
-                # リストから余分な要素を削除
-                while '' in self.token_list:
-                    self.token_list.remove('')
-                while ' ' in self.token_list:
-                    self.token_list.remove(' ')
-
-                return True
+        if self.token_list == []:
+            return False
+        else:
+            return True
 
     def advance(self):
         '''
@@ -173,7 +137,50 @@ class JackTokenizer:
         '''
         return self.token.strip('"')
 
-    def make_token_list(self, line):
+    def make_token_list(self):
+        '''
+        ファイル内のすべてのトークンをリスト化する
+        void -> void
+        '''
+        API_comment = False
+
+        while True:
+            line = self.f.readline()
+            if line == '':                     ## ファイルの終端
+                return False
+            elif re.match(r'^\s*\n$|^\s*//.*\n$|^\s*/\*\*.*\*/\s*\n$', line):  ## 改行のみもしくはコメントのみ
+                continue
+            elif re.match(r'^\s*/\*\*.*\n', line):  ## API コメントの始まり
+                API_comment = True
+                continue
+            elif re.match(r'.*\*/$', line):  ## API コメントの終わり
+                API_comment = False
+                continue
+            elif API_comment:  ## API コメントの途中
+                continue
+            else:                ## コメントを含むかもしれないその他の行
+                # コメントと改行の除去
+                line = line.split('//')[0]
+                line = line.strip()
+
+                # トークンリストを作る
+                list = line.split('"')
+                if len(list) == 3:
+                    list[1] = '"' + list[1] + '"'
+                    token_list_left = self.make_partial_token_list(list[0])
+                    token_list_right = self.make_partial_token_list(list[2])
+                    self.token_list =  \
+                        self.token_list + token_list_left + [list[1]] + token_list_right
+                else:
+                    self.token_list = self.token_list + self.make_partial_token_list(list[0])
+
+                # リストから余分な要素を削除
+                while '' in self.token_list:
+                    self.token_list.remove('')
+                while ' ' in self.token_list:
+                    self.token_list.remove(' ')
+
+    def make_partial_token_list(self, line):
         '''
         " を含まない文字列からトークンのリストを作成する
         str -> str list
@@ -196,5 +203,3 @@ class JackTokenizer:
                 right += 1
 
         return list
-
-
