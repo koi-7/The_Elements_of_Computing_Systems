@@ -60,4 +60,7 @@ token_list = make_token_list(list[0]) + [list[1]] + make_token_list(list[2])
 
 - シンタックスエラーなし
   - hasMoreTokens() の意味が薄れる気がする
+- p.240 compliexxx() は～
+  - 空の時に対応できない
 - write_xml() 説明
+- 書き込みで始まり書き込みで終わる関数の集まり
