@@ -71,7 +71,6 @@ class JackTokenizer:
         void -> void
         '''
         self.token = self.token_list.pop(0)
-        self.token_type = self.tokenType()
 
     def tokenType(self):
         '''
