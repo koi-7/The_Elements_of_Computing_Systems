@@ -52,7 +52,6 @@ class JackTokenizer:
         '''
         self.f = open(input_file, 'rt')
         self.token = ''
-        self.token_type = None
         self.token_list = []
 
     def hasMoreTokens(self):
