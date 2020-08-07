@@ -21,7 +21,6 @@ class CompilationEngine:
         クラスをコンパイルする
         void -> void
         '''
-
         self.fout.write('<class>' + '\n')
 
         if self.j.hasMoreTokens():  ## class
@@ -38,8 +37,8 @@ class CompilationEngine:
 
         if self.j.hasMoreTokens():
             self.j.advance()
-            self.compileClassVarDec()  # classVarDec
-            self.compileSubroutine()  # subroutineDec
+            self.compileClassVarDec()  # classVarDec*
+            self.compileSubroutine()  # subroutineDec*
 
         if self.j.hasMoreTokens():  ## {
             self.j.advance()
@@ -54,37 +53,44 @@ class CompilationEngine:
         void -> void
         '''
         if self.j.token != 'static' and self.j.token != 'field':
+            self.fout.write('<classVarDec>' + '\n')
+            self.fout.write('</classVarDec>' + '\n')
             return
 
         self.fout.write('<classVarDec>' + '\n')
 
-        self.write_xml()  ## static or field
-        self.j.advance()
-        self.write_xml()  ## type
-        self.j.advance()
-        self.write_xml()  ## varName
-        self.j.advance()
-        while self.j.token == ',':
-            self.write_xml()  ## ,
+        while self.j.token == 'static' or self.j.token == 'field':
+            self.write_xml()  ## static or field
+            self.j.advance()
+            self.write_xml()  ## type
             self.j.advance()
             self.write_xml()  ## varName
             self.j.advance()
-        self.write_xml()  ## ;
+            while self.j.token == ',':
+                self.write_xml()  ## ,
+                self.j.advance()
+                self.write_xml()  ## varName
+                self.j.advance()
+            self.write_xml()  ## ;
 
         self.fout.write('</classVarDec>' + '\n')
 
         if self.j.hasMoreTokens():
             self.j.advance()
 
-    def compileSubroutine(self):  ## TODO
+    def compileSubroutine(self):  ## ok
         '''
         メソッド、ファンクション、コンストラクタをコンパイルする
         void -> void
         '''
+        # subroutineDec
+        if self.j.token == '}':
+            self.fout.write('<subroutineDec>' + '\n')
+            self.fout.write('</subroutineDec>' + '\n')
+        elif self.j.token == 'constructor' or self.j.token == 'function' or self.j.token == 'method':
+            self.fout.write('<subroutineDec>' + '\n')
 
-        if self.j.token == 'constructor' or self.j.token == 'function' or self.j.token == 'method':  ## subroutineDec
             while self.j.token == 'constructor' or self.j.token == 'function' or self.j.token == 'method':
-                self.fout.write('<subroutineDec>' + '\n')
                 self.write_xml()  ## constructor or function or method
                 self.j.advance()
                 self.write_xml()  ## 'void' or type
@@ -93,18 +99,27 @@ class CompilationEngine:
                 self.j.advance()
                 self.write_xml()  ## '('
                 self.j.advance()
-                self.compileParameterList()
+                self.compileParameterList()  ## parameterList
                 self.write_xml()  ## ')'
                 self.j.advance()
-                self.fout.write('TODO: subtourineBody \n')
-                self.fout.write('</subroutineDec>' + '\n')
-                break
-            return
-        elif self.j.token == '{':  ## subroutineBody
-            return
+                self.compileSubroutine()  ## subroutineBody
 
-        else:  ## subroutineName
-            return
+            self.fout.write('</subroutineDec>' + '\n')
+
+            if self.j.hasMoreTokens():
+                self.j.advance()
+
+        # subroutineBody
+        elif self.j.token == '{':
+            self.fout.write('<subroutineBody>' + '\n')
+
+            self.write_xml()  ## '{'
+            self.j.advance()
+            self.compileVarDec()  ## varDec*
+            self.compileStatements()  ## statements
+            self.write_xml()  ## '}'
+
+            self.fout.write('</subroutineBody>' + '\n')
 
 
     def compileParameterList(self):  ## ok
@@ -132,11 +147,34 @@ class CompilationEngine:
                 self.j.advance()
             self.fout.write('</parameterList>' + '\n')
 
-    def compileVarDec(self):  ## TODO
+    def compileVarDec(self):  ## ok
         '''
         var 宣言をコンパイルする
         void -> void
         '''
+        if self.j.token != 'var':
+            self.fout.write('<varDec>' + '\n')
+            self.fout.write('</varDec>' + '\n')
+            return
+
+        self.fout.write('<varDec>' + '\n')
+
+        while self.j.token == 'var':
+            self.write_xml()  ## 'var'
+            self.j.advance()
+            self.write_xml()  ## type
+            self.j.advance()
+            self.write_xml()  ## varName
+            self.j.advance()
+            while self.j.token == ',':
+                self.write_xml()  ## ','
+                self.j.advance()
+                self.write_xml()  ## varName
+                self.j.advance()
+            self.write_xml()  ## ;
+
+        self.fout.write('</varDec>' + '\n')
+
         if self.j.hasMoreTokens():
             self.j.advance()
 
