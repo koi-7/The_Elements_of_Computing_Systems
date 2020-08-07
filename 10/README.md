@@ -57,3 +57,7 @@ token_list = make_token_list(list[0]) + [list[1]] + make_token_list(list[2])
 ```
 
 ## 第2段階：パーサ
+
+- シンタックスエラーなし
+  - hasMoreTokens() の意味が薄れる気がする
+- write_xml() 説明
