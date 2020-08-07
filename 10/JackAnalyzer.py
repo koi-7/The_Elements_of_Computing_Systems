@@ -16,15 +16,21 @@ def main():
         input_file_list = glob.glob(path + '*.jack')
 
     # パース
-    count = 1
     for input_file in input_file_list:
         output_file = input_file.replace('.jack', '.xml')
         c = ce.CompilationEngine(input_file, output_file)
-        c.compileClass()
+
+        # トークンリストの作成
+        c.j.make_token_list()
+
+        if c.j.hasMoreTokens():
+            c.j.advance()
+
+        if c.j.token == 'class':
+            c.compileClass()
+
         c.j.f.close()
         c.fout.close()
-        if count == 1:
-            break
 
 if __name__=='__main__':
     main()
