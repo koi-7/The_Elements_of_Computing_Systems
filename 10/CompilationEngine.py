@@ -289,7 +289,7 @@ class CompilationEngine:
             self.compileExpression()  ## expression
             self.write_xml()  ## ']'
 
-        elif self.j.token_list[0] == '(':
+        elif self.j.token_list[0] == '(' or self.j.token_list[0] == '.':
             self.compileSubroutine()  ## subroutineCall
 
         else:
@@ -324,13 +324,13 @@ class CompilationEngine:
         xml_str = ''
 
         if self.j.tokenType() == jt.KEYWORD:
-            xml_str = '<keyword> ' + self.j.token + ' </keyword>'
+            xml_str = '<keyword> ' + self.j.symbol() + ' </keyword>'
         elif self.j.tokenType() == jt.SYMBOL:
-            xml_str = '<symbol> ' + self.j.token + ' </symbol>'
+            xml_str = '<symbol> ' + self.j.symbol() + ' </symbol>'
         elif self.j.tokenType() == jt.IDENTIFIER:
-            xml_str = '<identifier> ' + self.j.token + ' </identifier>'
+            xml_str = '<identifier> ' + self.j.symbol() + ' </identifier>'
         elif self.j.tokenType() == jt.INT_CONST:
-            xml_str = '<integerConstant> ' + self.j.token + ' </integerConstant>'
+            xml_str = '<integerConstant> ' + self.j.symbol() + ' </integerConstant>'
         elif self.j.tokenType() == jt.STRING_CONST:
             xml_str = '<stringConstant> ' + self.j.token.strip('"') + ' </stringConstant>'
 
