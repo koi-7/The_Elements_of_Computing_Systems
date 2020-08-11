@@ -311,15 +311,16 @@ class CompilationEngine:
         xml_str = ''
 
         if self.j.tokenType() == jt.KEYWORD:
-            xml_str = '<keyword> ' + self.j.symbol() + ' </keyword>'
+            key = [k for k, v in jt.keyword_dict.items() if v == self.j.keyWord()]
+            xml_str = '<keyword> ' + key[0] + ' </keyword>'
         elif self.j.tokenType() == jt.SYMBOL:
             xml_str = '<symbol> ' + self.j.symbol() + ' </symbol>'
         elif self.j.tokenType() == jt.IDENTIFIER:
-            xml_str = '<identifier> ' + self.j.symbol() + ' </identifier>'
+            xml_str = '<identifier> ' + self.j.identifier() + ' </identifier>'
         elif self.j.tokenType() == jt.INT_CONST:
-            xml_str = '<integerConstant> ' + self.j.symbol() + ' </integerConstant>'
+            xml_str = '<integerConstant> ' + str(self.j.intVal()) + ' </integerConstant>'
         elif self.j.tokenType() == jt.STRING_CONST:
-            xml_str = '<stringConstant> ' + self.j.token.strip('"') + ' </stringConstant>'
+            xml_str = '<stringConstant> ' + self.j.stringVal() + ' </stringConstant>'
 
         self.fout.write(xml_str + '\n')
 
