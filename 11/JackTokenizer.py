@@ -46,37 +46,37 @@ symbol_set = {
 
 class JackTokenizer:
     def __init__(self, input_file):
-        '''
+        """
         入力ファイル / ストリームを開き、トークン化を行う準備をする
         str -> void
-        '''
+        """
         self.f = open(input_file, 'rt')
         self.token = ''
         self.token_list = []
 
     def hasMoreTokens(self):
-        '''
+        """
         入力にまだトークンは存在するか？
         void -> bool
-        '''
+        """
         if self.token_list == []:
             return False
         else:
             return True
 
     def advance(self):
-        '''
+        """
         入力から次のトークンを取得し、それを現在のトークンとする
         hasMoreTokens が True の場合のみ呼び出すことができる
         void -> void
-        '''
+        """
         self.token = self.token_list.pop(0)
 
     def tokenType(self):
-        '''
+        """
         現トークンの種類を返す
         void -> KEYWORD | SYMBOL | IDENTIFIER | INT_CONST | STRING_CONST
-        '''
+        """
         if self.token in keyword_dict:
             return KEYWORD
         elif self.token in symbol_set:
@@ -89,21 +89,21 @@ class JackTokenizer:
             return IDENTIFIER
 
     def keyWord(self):
-        '''
+        """
         現トークンのキーワードを返す
         tokenType() が KEYWORD の場合のみ呼び出すことができる
         void -> CLASS | METHOD | FUNCTION | CONSTRUCTOR | INT | BOOLEAN | CHAR |
                 VOID | VAR | STATIC | FIELD | LET | DO | IF | ELSE | WHILE |
                 RETURN | TRUE | FALSE | NULL | THIS
-        '''
+        """
         return keyword_dict[self.token]
 
     def symbol(self):
-        '''
+        """
         現トークンの文字を返す
         tokenType() が SYMBOL の場合のみ呼び出すことができる
         void -> str
-        '''
+        """
         s = self.token
         if s == '<':
             s = '&lt;'
@@ -114,34 +114,34 @@ class JackTokenizer:
         return s
 
     def identifier(self):
-        '''
+        """
         現トークンの識別子を返す
         tokenType() が IDENTIFIER の場合のみ呼び出すことができる
         void -> str
-        '''
+        """
         return self.token
 
     def intVal(self):
-        '''
+        """
         現トークンの整数の値を返す
         tokenType() が INT_CONST の場合のみ呼び出すことができる
         void -> int
-        '''
+        """
         return int(self.token)
 
     def stringVal(self):
-        '''
+        """
         現トークンの文字列を返す
         tokenType() が STRING_CONST の場合のみ呼び出すことができる
         void -> str
-        '''
+        """
         return self.token.strip('"')
 
     def make_token_list(self):
-        '''
+        """
         ファイル内のすべてのトークンをリスト化する
         void -> void
-        '''
+        """
         API_comment = False
 
         while True:
@@ -181,10 +181,10 @@ class JackTokenizer:
                     self.token_list.remove(' ')
 
     def make_partial_token_list(self, line):
-        '''
+        """
         " を含まない文字列からトークンのリストを作成する
         str -> str list
-        '''
+        """
         if line == '':
             return ['']
         elif len(line) == 1:

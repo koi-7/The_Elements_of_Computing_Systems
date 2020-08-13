@@ -5,19 +5,19 @@ import JackTokenizer as jt
 
 class CompilationEngine:
     def __init__(self, input_file, output_file):
-        '''
+        """
         与えられた入力と出力に対して新しいコンパイルエンジンを生成する
         次に呼ぶルーチンは compileClass() でなければならない
         str, str -> void
-        '''
+        """
         self.j = jt.JackTokenizer(input_file)
         self.fout = open(output_file, 'wt')
 
     def compileClass(self):
-        '''
+        """
         クラスをコンパイルする
         void -> void
-        '''
+        """
         self.fout.write('<class>' + '\n')
         self.write_xml()           ## 'class'
         self.write_xml()           ## className
@@ -28,10 +28,10 @@ class CompilationEngine:
         self.fout.write('</class>' + '\n')
 
     def compileClassVarDec(self):
-        '''
+        """
         スタティック宣言またはフィールド宣言をコンパイルする
         void -> void
-        '''
+        """
         # classVarDec 0個
         if self.j.token != 'static' and self.j.token != 'field':
             pass
@@ -50,10 +50,10 @@ class CompilationEngine:
                 self.fout.write('</classVarDec>' + '\n')
 
     def compileSubroutine(self):
-        '''
+        """
         メソッド、ファンクション、コンストラクタをコンパイルする
         void -> void
-        '''
+        """
         # subroutineDec
         ## subroutineDec なし
         if self.j.token == '}':
@@ -92,11 +92,11 @@ class CompilationEngine:
             self.write_xml()              ## ')'
 
     def compileParameterList(self):
-        '''
+        """
         パラメータのリストをコンパイルする
         () は含まない
         void -> void
-        '''
+        """
         self.fout.write('<parameterList>' + '\n')
 
         # 引数なし
@@ -115,10 +115,10 @@ class CompilationEngine:
         self.fout.write('</parameterList>' + '\n')
 
     def compileVarDec(self):
-        '''
+        """
         var 宣言をコンパイルする
         void -> void
-        '''
+        """
         # varDec 0個
         if self.j.token != 'var':
             pass
@@ -138,11 +138,11 @@ class CompilationEngine:
 
 
     def compileStatements(self):
-        '''
+        """
         一連の文をコンパイルする
         {} は含まない
         void -> void
-        '''
+        """
         self.fout.write('<statements>' + '\n')
 
         while self.j.token == 'let' or self.j.token == 'if' or self.j.token == 'while' or self.j.token == 'do' or self.j.token == 'return':
@@ -164,10 +164,10 @@ class CompilationEngine:
         self.fout.write('</statements>' + '\n')
 
     def compileDo(self):
-        '''
+        """
         do 文をコンパイルする
         void -> void
-        '''
+        """
         self.fout.write('<doStatement>' + '\n')
         self.write_xml()          ## 'do'
         self.compileSubroutine()  ## subroutineCall
@@ -175,10 +175,10 @@ class CompilationEngine:
         self.fout.write('</doStatement>' + '\n')
 
     def compileLet(self):
-        '''
+        """
         let 文をコンパイルする
         void -> void
-        '''
+        """
         self.fout.write('<letStatement>' + '\n')
         self.write_xml()              ## 'let'
         self.write_xml()              ## varName
@@ -192,10 +192,10 @@ class CompilationEngine:
         self.fout.write('</letStatement>' + '\n')
 
     def compileWhile(self):
-        '''
+        """
         while 文をコンパイルする
         void -> void
-        '''
+        """
         self.fout.write('<whileStatement>' + '\n')
         self.write_xml()          ## 'while'
         self.write_xml()          ## '('
@@ -207,10 +207,10 @@ class CompilationEngine:
         self.fout.write('</whileStatement>' + '\n')
 
     def compileReturn(self):
-        '''
+        """
         return 文をコンパイルする
         void -> void
-        '''
+        """
         self.fout.write('<returnStatement>' + '\n')
         self.write_xml()              ## 'return'
         if self.j.token != ';':
@@ -219,11 +219,11 @@ class CompilationEngine:
         self.fout.write('</returnStatement>' + '\n')
 
     def compileIf(self):
-        '''
+        """
         if 文をコンパイルする
         else 文を伴う可能性がある
         void -> void
-        '''
+        """
         self.fout.write('<ifStatement>' + '\n')
         self.write_xml()              ## 'if'
         self.write_xml()              ## '('
@@ -240,10 +240,10 @@ class CompilationEngine:
         self.fout.write('</ifStatement>' + '\n')
 
     def compileExpression(self):
-        '''
+        """
         式をコンパイルする
         void -> void
-        '''
+        """
         op_set = {'+', '-', '*', '/', '&', '|', '<', '>', '='}
 
         self.fout.write('<expression>' + '\n')
@@ -254,11 +254,11 @@ class CompilationEngine:
         self.fout.write('</expression>' + '\n')
 
     def compileTerm(self):
-        '''
+        """
         term をコンパイルする
         場合によって先読みをする必要がある
         void -> void
-        '''
+        """
         self.fout.write('<term>' + '\n')
 
         if self.j.token == '(':
@@ -285,10 +285,10 @@ class CompilationEngine:
         self.fout.write('</term>' + '\n')
 
     def compileExpressionList(self):
-        '''
+        """
         コンマで分離された式のリストをコンパイルする
         void -> void
-        '''
+        """
         self.fout.write('<expressionList>' + '\n')
 
         if self.j.token == ')':
@@ -303,11 +303,11 @@ class CompilationEngine:
         self.fout.write('</expressionList>' + '\n')
 
     def write_xml(self):
-        '''
+        """
         トークンのタイプを見て xml に書き込みを行う
         書き込み後は次のトークンに進む
         void -> void
-        '''
+        """
         xml_str = ''
 
         if self.j.tokenType() == jt.KEYWORD:
