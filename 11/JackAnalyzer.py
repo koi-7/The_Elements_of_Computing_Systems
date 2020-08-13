@@ -2,7 +2,7 @@
 # coding: utf-8
 
 import sys, os, glob
-import CompilationEngine as ce
+import CompilationEngine as CE
 
 def main():
     # ファイル名処理
@@ -17,8 +17,8 @@ def main():
 
     # パース
     for input_file in input_file_list:
-        output_file = input_file.replace('.jack', '.xml')
-        c = ce.CompilationEngine(input_file, output_file)
+        output_file = input_file.replace('.jack', '.vm')
+        c = CE.CompilationEngine(input_file, output_file)
 
         # トークンリストの作成
         c.j.make_token_list()
@@ -30,7 +30,7 @@ def main():
             c.compileClass()
 
         c.j.f.close()
-        c.fout.close()
+        c.v.close()
 
 if __name__=='__main__':
     main()

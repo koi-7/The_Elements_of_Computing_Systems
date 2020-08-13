@@ -2,12 +2,12 @@
 # coding: utf-8
 
 class VMWriter:
-    def __init__(self):
+    def __init__(self, output_file):
         """
         新しいファイルを作り、それに書き込む準備をする
         void -> void
         """
-        pass
+        self.f = open(output_file, 'wt')
 
     def writePush(self, segment, index):
         """
@@ -77,4 +77,4 @@ class VMWriter:
         出力ファイルを閉じる
         void -> void
         """
-        pass
+        self.f.close()
