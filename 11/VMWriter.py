@@ -14,63 +14,63 @@ class VMWriter:
         push コマンドを書く
         CONST | ARG | LOCAL | STATIC | THIS | THAT | POINTER | TEMP, int -> void
         """
-        pass
+        self.f.write('push' + segment + str(index) + '\n')
 
     def writePop(self, segment, index):
         """
         pop コマンドを書く
         CONST | ARG | LOCAL | STATIC | THIS | THAT | POINTER | TEMP, int -> void
         """
-        pass
+        self.f.write('pop' + segment + str(index) + '\n')
 
     def writeArithmetic(self, command):
         """
         算術コマンドを書く
         ADD | SUB | NEG | EQ | GT | LT | AND | OR | NOT -> void
         """
-        pass
+        self.f.write(command + '\n')
 
     def writeLabel(self, label):
         """
         label コマンドを書く
         str -> void
         """
-        pass
+        self.f.write('label' + label + '\n')
 
     def writeGoto(self, label):
         """
         goto コマンドを書く
         str -> void
         """
-        pass
+        self.f.write('goto' + label + '\n')
 
     def writeIf(self, label):
         """
         If-goto コマンドを書く
         str -> void
         """
-        pass
+        self.f.write('if-goto' + label + '\n')
 
     def writeCall(self, name, nArgs):
         """
         call コマンドを書く
         str, int -> void
         """
-        pass
+        self.f.write('call' + name + str(nArgs) + '\n')
 
     def writeFunction(self, name, nLocals):
         """
         function コマンドを書く
         str, int -> void
         """
-        pass
+        self.f.write('function' + name + str(nLocals) + '\n')
 
     def writeReturn(self):
         """
         return コマンドを書く
         void -> void
         """
-        pass
+        self.f.write('return' + '\n')
 
     def close(self):
         """
