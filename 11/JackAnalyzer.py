@@ -18,7 +18,7 @@ def main():
     print(input_file_list)
     # パース
     for input_file in input_file_list:
-        output_file = input_file.replace('.jack', '.vm')
+        output_file = input_file.replace('.jack', '.xml')
         c = CE.CompilationEngine(input_file, output_file)
 
         # トークンリストの作成
@@ -30,10 +30,8 @@ def main():
         if c.j.token == 'class':
             c.compileClass()
 
-        print(c.s.tables)
-
         c.j.f.close()
-        c.v.close()
+        c.fout.close()
 
 if __name__=='__main__':
     main()
