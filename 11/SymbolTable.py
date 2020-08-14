@@ -36,16 +36,16 @@ class SymbolTable:
         str, str, STATIC | FIELD | ARG | VAR -> void
         """
         if kind == STATIC:
-            self.tables[1][name] = (type, kind, self.static_count)
+            self.tables[1][name] = (type, 'static', self.static_count)
             self.static_count += 1
         elif kind == FIELD:
-            self.tables[1][name] = (type, kind, self.field_count)
+            self.tables[1][name] = (type, 'field', self.field_count)
             self.field_count += 1
         elif kind == ARG:
-            self.tables[0][name] = (type, kind, self.arg_count)
+            self.tables[0][name] = (type, 'arg', self.arg_count)
             self.arg_count += 1
         elif kind == VAR:
-            self.tables[0][name] = (type, kind, self.var_count)
+            self.tables[0][name] = (type, 'var', self.var_count)
             self.arg_count += 1
 
 

@@ -22,12 +22,10 @@ class CompilationEngine:
         void -> void
         """
         self.next()           ## 'class'
-        # self.write_xml()           ## className
+        self.next()# self.write_xml()           ## className
         self.next()           ## '{'
-        if self.j.token == 'static' or self.j.token == 'field':
-            self.compileClassVarDec()  ## classVarDec*
-        if self.j.token == 'constructor' or self.j.token == 'function' or self.j.token == 'method':
-            self.compileSubroutine()   ## subroutineDec*
+        self.compileClassVarDec()  ## classVarDec*
+        self.compileSubroutine()   ## subroutineDec*
         self.next()           ## '}'
 
     def compileClassVarDec(self):
@@ -35,51 +33,64 @@ class CompilationEngine:
         スタティック宣言またはフィールド宣言をコンパイルする
         void -> void
         """
-        while self.j.token == 'static' or self.j.token == 'field':
-            self.write_xml()            ## 'static' or 'field'
-            self.write_xml()            ## type
-            self.write_xml()            ## varName
-            while self.j.token == ',':
-                self.write_xml()        ## ','
-                self.write_xml()        ## varName
-            self.write_xml()            ## ';'
+        # classVarDec 0個
+        if self.j.token != 'static' and self.j.token != 'field':
+            pass
+
+        # classVarDec 1個以上
+        else:
+            while self.j.token == 'static' or self.j.token == 'field':
+                if self.j.token == 'static':
+                    kind = ST.STATIC
+                elif self.j.token == 'field':
+                    kind = ST.FIELD
+                self.next()
+                type = self.j.token            ## type
+                self.next()
+                self.s.define(self.j.token, type, kind)            ## varName
+                self.next()
+                while self.j.token == ',':
+                    self.next()        ## ','
+                    self.s.define(self.j.token, type, kind)        ## varName
+                    self.next()
+                self.next()            ## ';'
 
     def compileSubroutine(self):
         """
         メソッド、ファンクション、コンストラクタをコンパイルする
         void -> void
         """
-        pass
-        # # subroutineDec
-        # ## subroutineDec なし
-        # if self.j.token == '}':
-        # ## subroutineDec あり
-        # elif self.j.token == 'constructor' or self.j.token == 'function' or self.j.token == 'method':
-        #     while self.j.token == 'constructor' or self.j.token == 'function' or self.j.token == 'method':
-        #         self.write_xml()             ## constructor or function or method
-        #         self.write_xml()             ## 'void' | type
-        #         self.write_xml()             ## subroutineName
-        #         self.write_xml()             ## '('
-        #         self.compileParameterList()  ## parameterList
-        #         self.write_xml()             ## ')'
-        #         self.compileSubroutine()     ## subroutineBody
+        # subroutineDec
+        ## subroutineDec なし
+        if self.j.token == '}':
+            pass
+        ## subroutineDec あり
+        elif self.j.token == 'constructor' or self.j.token == 'function' or self.j.token == 'method':
+            while self.j.token == 'constructor' or self.j.token == 'function' or self.j.token == 'method':
+                self.next()             ## constructor or function or method
+                self.write_xml()             ## 'void' | type
+                self.write_xml()             ## subroutineName
+                self.write_xml()             ## '('
+                self.compileParameterList()  ## parameterList
+                self.write_xml()             ## ')'
+                self.compileSubroutine()     ## subroutineBody
 
-        # # subroutineBody
-        # elif self.j.token == '{':
-        #     self.write_xml()          ## '{'
-        #     self.compileVarDec()      ## varDec*
-        #     self.compileStatements()  ## statements
-        #     self.write_xml()          ## '}'
+        # subroutineBody
+        elif self.j.token == '{':
+            self.write_xml()          ## '{'
+            self.compileVarDec()      ## varDec*
+            self.compileStatements()  ## statements
+            self.write_xml()          ## '}'
 
-        # # subroutineCall
-        # elif self.j.token_list[0] == '(' or self.j.token_list[0] == '.':
-        #     if self.j.token_list[0] == '.':
-        #         self.write_xml()          ## className | varName
-        #         self.write_xml()          ## '.'
-        #     self.write_xml()              ## subroutineName
-        #     self.write_xml()              ## '('
-        #     self.compileExpressionList()  ## expressionList
-        #     self.write_xml()              ## ')'
+        # subroutineCall
+        elif self.j.token_list[0] == '(' or self.j.token_list[0] == '.':
+            if self.j.token_list[0] == '.':
+                self.write_xml()          ## className | varName
+                self.write_xml()          ## '.'
+            self.write_xml()              ## subroutineName
+            self.write_xml()              ## '('
+            self.compileExpressionList()  ## expressionList
+            self.write_xml()              ## ')'
 
     def compileParameterList(self):
         """

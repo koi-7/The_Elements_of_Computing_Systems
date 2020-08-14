@@ -15,6 +15,7 @@ def main():
             path = path + '/'
         input_file_list = glob.glob(path + '*.jack')
 
+    print(input_file_list)
     # パース
     for input_file in input_file_list:
         output_file = input_file.replace('.jack', '.vm')
@@ -28,6 +29,8 @@ def main():
 
         if c.j.token == 'class':
             c.compileClass()
+
+        print(c.s.tables)
 
         c.j.f.close()
         c.v.close()
