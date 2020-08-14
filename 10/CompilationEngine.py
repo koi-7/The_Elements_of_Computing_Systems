@@ -22,7 +22,8 @@ class CompilationEngine:
         self.write_xml()           ## 'class'
         self.write_xml()           ## className
         self.write_xml()           ## '{'
-        self.compileClassVarDec()  ## classVarDec*
+        if self.j.token == 'static' or self.j.token == 'field':
+            self.compileClassVarDec()  ## classVarDec*
         self.compileSubroutine()   ## subroutineDec*
         self.write_xml()           ## '}'
         self.fout.write('</class>' + '\n')
