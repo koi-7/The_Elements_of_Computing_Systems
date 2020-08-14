@@ -21,38 +21,28 @@ class CompilationEngine:
         クラスをコンパイルする
         void -> void
         """
-        pass
-        # self.fout.write('<class>' + '\n')
-        # self.write_xml()           ## 'class'
+        self.next()           ## 'class'
         # self.write_xml()           ## className
-        # self.write_xml()           ## '{'
-        # self.compileClassVarDec()  ## classVarDec*
-        # self.compileSubroutine()   ## subroutineDec*
-        # self.write_xml()           ## '}'
-        # self.fout.write('</class>' + '\n')
+        self.next()           ## '{'
+        if self.j.token == 'static' or self.j.token == 'field':
+            self.compileClassVarDec()  ## classVarDec*
+        if self.j.token == 'constructor' or self.j.token == 'function' or self.j.token == 'method':
+            self.compileSubroutine()   ## subroutineDec*
+        self.next()           ## '}'
 
     def compileClassVarDec(self):
         """
         スタティック宣言またはフィールド宣言をコンパイルする
         void -> void
         """
-        pass
-        # # classVarDec 0個
-        # if self.j.token != 'static' and self.j.token != 'field':
-        #     pass
-
-        # # classVarDec 1個以上
-        # else:
-        #     while self.j.token == 'static' or self.j.token == 'field':
-        #         self.fout.write('<classVarDec>' + '\n')
-        #         self.write_xml()            ## 'static' or 'field'
-        #         self.write_xml()            ## type
-        #         self.write_xml()            ## varName
-        #         while self.j.token == ',':
-        #             self.write_xml()        ## ','
-        #             self.write_xml()        ## varName
-        #         self.write_xml()            ## ';'
-        #         self.fout.write('</classVarDec>' + '\n')
+        while self.j.token == 'static' or self.j.token == 'field':
+            self.write_xml()            ## 'static' or 'field'
+            self.write_xml()            ## type
+            self.write_xml()            ## varName
+            while self.j.token == ',':
+                self.write_xml()        ## ','
+                self.write_xml()        ## varName
+            self.write_xml()            ## ';'
 
     def compileSubroutine(self):
         """
@@ -63,12 +53,9 @@ class CompilationEngine:
         # # subroutineDec
         # ## subroutineDec なし
         # if self.j.token == '}':
-        #     self.fout.write('<subroutineDec>' + '\n')
-        #     self.fout.write('</subroutineDec>' + '\n')
         # ## subroutineDec あり
         # elif self.j.token == 'constructor' or self.j.token == 'function' or self.j.token == 'method':
         #     while self.j.token == 'constructor' or self.j.token == 'function' or self.j.token == 'method':
-        #         self.fout.write('<subroutineDec>' + '\n')
         #         self.write_xml()             ## constructor or function or method
         #         self.write_xml()             ## 'void' | type
         #         self.write_xml()             ## subroutineName
@@ -76,16 +63,13 @@ class CompilationEngine:
         #         self.compileParameterList()  ## parameterList
         #         self.write_xml()             ## ')'
         #         self.compileSubroutine()     ## subroutineBody
-        #         self.fout.write('</subroutineDec>' + '\n')
 
         # # subroutineBody
         # elif self.j.token == '{':
-        #     self.fout.write('<subroutineBody>' + '\n')
         #     self.write_xml()          ## '{'
         #     self.compileVarDec()      ## varDec*
         #     self.compileStatements()  ## statements
         #     self.write_xml()          ## '}'
-        #     self.fout.write('</subroutineBody>' + '\n')
 
         # # subroutineCall
         # elif self.j.token_list[0] == '(' or self.j.token_list[0] == '.':
@@ -104,7 +88,6 @@ class CompilationEngine:
         void -> void
         """
         pass
-        # self.fout.write('<parameterList>' + '\n')
 
         # # 引数なし
         # if self.j.token == ')':
@@ -119,7 +102,6 @@ class CompilationEngine:
         #         self.write_xml()        ## type
         #         self.write_xml()        ## varName
 
-        # self.fout.write('</parameterList>' + '\n')
 
     def compileVarDec(self):
         """
@@ -134,7 +116,6 @@ class CompilationEngine:
         # # varDec 1個以上
         # else:
         #     while self.j.token == 'var':
-        #         self.fout.write('<varDec>' + '\n')
         #         self.write_xml()            ## 'var'
         #         self.write_xml()            ## type
         #         self.write_xml()            ## varName
@@ -142,7 +123,6 @@ class CompilationEngine:
         #             self.write_xml()        ## ','
         #             self.write_xml()        ## varName
         #         self.write_xml()            ## ';'
-        #         self.fout.write('</varDec>' + '\n')
 
     def compileStatements(self):
         """
@@ -151,7 +131,6 @@ class CompilationEngine:
         void -> void
         """
         pass
-        # self.fout.write('<statements>' + '\n')
 
         # while self.j.token == 'let' or self.j.token == 'if' or self.j.token == 'while' or self.j.token == 'do' or self.j.token == 'return':
         #     if self.j.token == 'let':
@@ -169,19 +148,15 @@ class CompilationEngine:
         #     elif self.j.token == 'return':
         #         self.compileReturn()  ## returnStatement
 
-        # self.fout.write('</statements>' + '\n')
-
     def compileDo(self):
         """
         do 文をコンパイルする
         void -> void
         """
         pass
-        # self.fout.write('<doStatement>' + '\n')
         # self.write_xml()          ## 'do'
         # self.compileSubroutine()  ## subroutineCall
         # self.write_xml()          ## ';'
-        # self.fout.write('</doStatement>' + '\n')
 
     def compileLet(self):
         """
@@ -189,7 +164,6 @@ class CompilationEngine:
         void -> void
         """
         pass
-        # self.fout.write('<letStatement>' + '\n')
         # self.write_xml()              ## 'let'
         # self.write_xml()              ## varName
         # if self.j.token == '[':
@@ -199,7 +173,6 @@ class CompilationEngine:
         # self.write_xml()              ## '='
         # self.compileExpression()      ## expression
         # self.write_xml()              ## ';'
-        # self.fout.write('</letStatement>' + '\n')
 
     def compileWhile(self):
         """
@@ -207,7 +180,6 @@ class CompilationEngine:
         void -> void
         """
         pass
-        # self.fout.write('<whileStatement>' + '\n')
         # self.write_xml()          ## 'while'
         # self.write_xml()          ## '('
         # self.compileExpression()  ## expression
@@ -215,7 +187,6 @@ class CompilationEngine:
         # self.write_xml()          ## '{'
         # self.compileStatements()  ## statements
         # self.write_xml()          ## '}'
-        # self.fout.write('</whileStatement>' + '\n')
 
     def compileReturn(self):
         """
@@ -223,12 +194,10 @@ class CompilationEngine:
         void -> void
         """
         pass
-        # self.fout.write('<returnStatement>' + '\n')
         # self.write_xml()              ## 'return'
         # if self.j.token != ';':
         #     self.compileExpression()  ## expression
         # self.write_xml()              ## ';'
-        # self.fout.write('</returnStatement>' + '\n')
 
     def compileIf(self):
         """
@@ -237,7 +206,6 @@ class CompilationEngine:
         void -> void
         """
         pass
-        # self.fout.write('<ifStatement>' + '\n')
         # self.write_xml()              ## 'if'
         # self.write_xml()              ## '('
         # self.compileExpression()      ## expression
@@ -250,7 +218,6 @@ class CompilationEngine:
         #     self.write_xml()          ## '{'
         #     self.compileStatements()  ## statements
         #     self.write_xml()          ## '}'
-        # self.fout.write('</ifStatement>' + '\n')
 
     def compileExpression(self):
         """
@@ -260,12 +227,10 @@ class CompilationEngine:
         pass
         # op_set = {'+', '-', '*', '/', '&', '|', '<', '>', '='}
 
-        # self.fout.write('<expression>' + '\n')
         # self.compileTerm()             ## term
         # while self.j.token in op_set:
         #     self.write_xml()           ## op
         #     self.compileTerm()         ## term
-        # self.fout.write('</expression>' + '\n')
 
     def compileTerm(self):
         """
@@ -274,7 +239,6 @@ class CompilationEngine:
         void -> void
         """
         pass
-        # self.fout.write('<term>' + '\n')
 
         # if self.j.token == '(':
         #     self.write_xml()          ## '('
@@ -297,15 +261,12 @@ class CompilationEngine:
         # else:
         #     self.write_xml()  ## integerConstant | stringConstant | keywordConstant | varName
 
-        # self.fout.write('</term>' + '\n')
-
     def compileExpressionList(self):
         """
         コンマで分離された式のリストをコンパイルする
         void -> void
         """
         pass
-        # self.fout.write('<expressionList>' + '\n')
 
         # if self.j.token == ')':
         #     pass
@@ -315,8 +276,6 @@ class CompilationEngine:
         #     while self.j.token == ',':
         #         self.write_xml()          ## ','
         #         self.compileExpression()  ## expression
-
-        # self.fout.write('</expressionList>' + '\n')
 
     def write_xml(self):
         """
@@ -343,3 +302,11 @@ class CompilationEngine:
 
         # if self.j.hasMoreTokens():
         #     self.j.advance()
+
+    def next(self):
+        """
+        hasMoreTokens() と advance() を同時に行うためのメソッド
+        void -> void
+        """
+        if self.j.hasMoreTokens():
+            self.j.advance()
