@@ -1,11 +1,11 @@
 #!/usr/bin/python3
 # coding: utf-8
 
-NONE   = 0
-STATIC = 1
-FIELD  = 2
-ARG    = 3
-VAR    = 4
+NONE   = 'none'
+STATIC = 'static'
+FIELD  = 'field'
+ARG    = 'arg'
+VAR    = 'var'
 
 class SymbolTable:
     def __init__(self):
@@ -14,10 +14,12 @@ class SymbolTable:
         void -> void
         """
         self.tables = [{}, {}]  ## [{サブルーチンのスコープ}, {クラスのスコープ}]
-        self.static_count = 0
-        self.field_count = 0
-        self.arg_count = 0
-        self.var_count = 0
+        self.count = {
+            'static': 0,
+            'field': 0,
+            'arg': 0,
+            'var': 0,
+        }
 
     def startSubroutine(self):
         """
@@ -26,8 +28,8 @@ class SymbolTable:
         void -> void
         """
         self.tables[0] = {}
-        self.arg_count = 0
-        self.var_count = 0
+        self.count['arg'] = 0
+        self.count['var'] = 0
 
     def define(self, name, type, kind):
         """
@@ -36,17 +38,17 @@ class SymbolTable:
         str, str, STATIC | FIELD | ARG | VAR -> void
         """
         if kind == STATIC:
-            self.tables[1][name] = (type, 'static', self.static_count)
-            self.static_count += 1
+            self.tables[1][name] = (type, 'static', self.count['static'])
+            self.count['static'] += 1
         elif kind == FIELD:
-            self.tables[1][name] = (type, 'field', self.field_count)
-            self.field_count += 1
+            self.tables[1][name] = (type, 'field', self.count['field'])
+            self.count['field'] += 1
         elif kind == ARG:
-            self.tables[0][name] = (type, 'arg', self.arg_count)
-            self.arg_count += 1
+            self.tables[0][name] = (type, 'arg', self.count['arg'])
+            self.count['arg'] += 1
         elif kind == VAR:
-            self.tables[0][name] = (type, 'var', self.var_count)
-            self.arg_count += 1
+            self.tables[0][name] = (type, 'var', self.count['var'])
+            self.count['var'] += 1
 
 
     def varCount(self, kind):
@@ -55,14 +57,7 @@ class SymbolTable:
         定義されている数を返す
         STATIC | FIELD | ARG | VAR -> int
         """
-        if kind == STATIC:
-            return self.static_count
-        elif kind == FIELD:
-            return self.field_count
-        elif kind == ARG:
-            return self.arg_count
-        elif kind == VAR:
-            return self.var_count
+        return self.count[kind]
 
     def kindOf(self, name):
         """

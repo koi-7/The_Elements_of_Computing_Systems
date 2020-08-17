@@ -1,6 +1,25 @@
 #!/usr/bin/python3
 # coding: utf-8
 
+CONST   = 'const'
+ARG     = 'arg'
+LOCAL   = 'local'
+STATIC  = 'static'
+THIS    = 'this'
+THAT    = 'that'
+POINTER = 'pointer'
+TEMP    = 'temp'
+
+ADD = 'and'
+SUB = 'sub'
+NEG = 'neg'
+EQ  = 'eq'
+GT  = 'gt'
+LT  = 'lt'
+AND = 'and'
+OR  = 'or'
+NOT = 'not'
+
 class VMWriter:
     def __init__(self, output_file):
         """
