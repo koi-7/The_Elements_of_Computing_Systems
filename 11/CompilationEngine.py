@@ -5,9 +5,11 @@ import JackTokenizer as JT
 import SymbolTable as ST
 import VMWriter as VMW
 
+subroutine_name = ''
+varDec_count = 0
 label_number = 0
-parameterList_count = 0
 expressionList_count = 0
+
 
 class CompilationEngine:
     def __init__(self, input_file, output_file):
@@ -69,6 +71,7 @@ class CompilationEngine:
         メソッド、ファンクション、コンストラクタをコンパイルする
         void -> void
         '''
+        global subroutine_name
         # subroutineDec
         ## subroutineDec なし
         if self.j.token == '}':
@@ -78,7 +81,7 @@ class CompilationEngine:
         ## subroutineDec あり
         elif self.j.token == 'constructor' or self.j.token == 'function' or self.j.token == 'method':
             while self.j.token == 'constructor' or self.j.token == 'function' or self.j.token == 'method':
-                global parameterList_count
+                self.s.startSubroutine()
                 subroutine_name = self.class_name + '.'
                 # self.fout.write('<subroutineDec>' + '\n')
                 self.write_xml()             ## 'constructor' | 'function' | 'method'
@@ -88,15 +91,18 @@ class CompilationEngine:
                 self.write_xml()             ## '('
                 self.compileParameterList()  ## parameterList
                 self.write_xml()             ## ')'
-                self.v.writeFunction(subroutine_name, parameterList_count)
+
                 self.compileSubroutine()     ## subroutineBody
                 # self.fout.write('</subroutineDec>' + '\n')
+                print(self.s.tables[0])
 
         # subroutineBody
         elif self.j.token == '{':
+            global varDec_count
             # self.fout.write('<subroutineBody>' + '\n')
             self.write_xml()          ## '{'
             self.compileVarDec()      ## varDec*
+            self.v.writeFunction(subroutine_name, varDec_count)
             self.compileStatements()  ## statements
             self.write_xml()          ## '}'
             # self.fout.write('</subroutineBody>' + '\n')
@@ -116,7 +122,7 @@ class CompilationEngine:
             self.write_xml()              ## ')'
 
             self.v.writeCall(subroutine_name, expressionList_count)
-            self.v.writePop(VMW.TEMP, 0)
+            #self.v.writePop(VMW.TEMP, 0)
 
     def compileParameterList(self):
         '''
@@ -132,6 +138,7 @@ class CompilationEngine:
 
         # 引数あり
         else:
+            global expressionList_count
             expressionList_count += 1
             type = self.j.token
             self.write_xml()            ## type
@@ -150,6 +157,8 @@ class CompilationEngine:
         var 宣言をコンパイルする
         void -> void
         '''
+        global varDec_count
+        varDec_count = 0
         # varDec 0個
         if self.j.token != 'var':
             pass
@@ -157,6 +166,7 @@ class CompilationEngine:
         # varDec 1個以上
         else:
             while self.j.token == 'var':
+                varDec_count += 1
                 # self.fout.write('<varDec>' + '\n')
                 kind = ST.VAR
                 self.write_xml()            ## 'var'
@@ -164,6 +174,7 @@ class CompilationEngine:
                 self.write_xml()            ## type
                 self.write_xml(type, kind)            ## varName
                 while self.j.token == ',':
+                    varDec_count += 1
                     self.write_xml()        ## ','
                     self.write_xml(type, kind)        ## varName
                 self.write_xml()            ## ';'
@@ -205,6 +216,7 @@ class CompilationEngine:
         self.compileSubroutine()  ## subroutineCall
         self.write_xml()          ## ';'
         # self.fout.write('</doStatement>' + '\n')
+        self.v.writePop(VMW.TEMP, 0)
 
     def compileLet(self):
         '''
@@ -222,6 +234,7 @@ class CompilationEngine:
         self.compileExpression()      ## expression
         self.write_xml()              ## ';'
         # self.fout.write('</letStatement>' + '\n')
+        self.v.writePop(VMW.LOCAL, 0)
 
     def compileWhile(self):
         '''
@@ -230,9 +243,9 @@ class CompilationEngine:
         '''
         global label_number
 
-        label1 = 'L' + str(label_number)
-        label2 = 'L' + str(label_number + 1)
-        label_number += 2
+        label1 = 'WHILE_EXP' + str(label_number)
+        label2 = 'WHILE_END' + str(label_number)
+        label_number += 1
 
         self.v.writeLabel(label1)
 
@@ -273,9 +286,10 @@ class CompilationEngine:
         '''
         global label_number
 
-        label1 = 'L' + str(label_number)
-        label2 = 'L' + str(label_number + 2)
-        label_number += 2
+        label1 = 'IF_TRUE' + str(label_number)
+        label2 = 'IF_FALSE' + str(label_number)
+        label3 = 'IF_END' + str(label_number)
+        label_number += 1
 
         self.write_xml()              ## 'if'
         self.write_xml()              ## '('
@@ -283,14 +297,16 @@ class CompilationEngine:
         self.write_xml()              ## ')'
 
         self.v.writeIf(label1)
+        self.v.writeGoto(label2)
+        self.v.writeLabel(label1)
 
         self.write_xml()              ## '{'
         self.compileStatements()      ## statements
         self.write_xml()              ## '}'
 
-        self.v.writeGoto(label2)
+        self.v.writeGoto(label3)
 
-        self.v.writeLabel(label1)
+        self.v.writeLabel(label2)
 
         if self.j.token == 'else':
             self.write_xml()          ## 'else'
@@ -298,7 +314,7 @@ class CompilationEngine:
             self.compileStatements()  ## statements
             self.write_xml()          ## '}'
 
-        self.v.writeLabel(label2)
+        self.v.writeLabel(label3)
 
     def compileExpression(self):
         '''
@@ -339,8 +355,11 @@ class CompilationEngine:
             self.write_xml()          ## ')'
 
         elif self.j.token == '-' or self.j.token == '~':
+            op = self.j.token
             self.write_xml()    ## '-' | '~'
             self.compileTerm()  ## term
+            if op == '-':
+                self.v.writeArithmetic(VMW.NEG)
 
         elif self.j.token_list[0] == '[':
             self.write_xml()          ## varName
