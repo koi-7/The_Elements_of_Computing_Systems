@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # coding: utf-8
 
-CONST   = 'const'
+CONST   = 'constant'
 ARG     = 'arg'
 LOCAL   = 'local'
 STATIC  = 'static'
@@ -10,7 +10,7 @@ THAT    = 'that'
 POINTER = 'pointer'
 TEMP    = 'temp'
 
-ADD = 'and'
+ADD = 'add'
 SUB = 'sub'
 NEG = 'neg'
 EQ  = 'eq'
@@ -33,14 +33,14 @@ class VMWriter:
         push コマンドを書く
         CONST | ARG | LOCAL | STATIC | THIS | THAT | POINTER | TEMP, int -> void
         """
-        self.f.write('push' + segment + str(index) + '\n')
+        self.f.write('push ' + segment + ' ' + str(index) + '\n')
 
     def writePop(self, segment, index):
         """
         pop コマンドを書く
         CONST | ARG | LOCAL | STATIC | THIS | THAT | POINTER | TEMP, int -> void
         """
-        self.f.write('pop' + segment + str(index) + '\n')
+        self.f.write('pop ' + segment + ' ' + str(index) + '\n')
 
     def writeArithmetic(self, command):
         """
@@ -75,14 +75,14 @@ class VMWriter:
         call コマンドを書く
         str, int -> void
         """
-        self.f.write('call' + name + str(nArgs) + '\n')
+        self.f.write('call ' + name + ' ' + str(nArgs) + '\n')
 
     def writeFunction(self, name, nLocals):
         """
         function コマンドを書く
         str, int -> void
         """
-        self.f.write('function' + name + str(nLocals) + '\n')
+        self.f.write('function ' + name + ' ' + str(nLocals) + '\n')
 
     def writeReturn(self):
         """
