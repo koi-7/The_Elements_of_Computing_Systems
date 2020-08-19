@@ -1,14 +1,21 @@
 #!/usr/bin/python3
 # coding: utf-8
 
+import pprint
+
 import JackTokenizer as JT
 import SymbolTable as ST
 import VMWriter as VMW
 
+subroutine_name = ''
+varDec_count = 0
 label_number = 0
 parameterList_count = 0
 varDec_count = 0
 expressionList_count = 0
+
+keyword_constant_set = {'true', 'false', 'null', 'this'}
+
 
 class CompilationEngine:
     def __init__(self, input_file, output_file):
@@ -132,6 +139,11 @@ class CompilationEngine:
             self.compileExpressionList()  ## expressionList
             self.write_xml()              ## ')'
 
+            print(subroutine_name)
+
+            for i in range(expressionList_count):
+                self.v.writePush(VMW.LOCAL, i)
+
             self.v.writeCall(subroutine_name, expressionList_count)
             #self.v.writePop(VMW.TEMP, 0)
 
@@ -165,7 +177,6 @@ class CompilationEngine:
         void -> void
         '''
         global varDec_count
-
         # varDec 0個
         if self.j.token != 'var':
             pass
@@ -224,6 +235,11 @@ class CompilationEngine:
         void -> void
         '''
         self.write_xml()              ## 'let'
+
+        name = self.j.token
+        kind = self.s.kindOf(name)
+        index = self.s.indexOf(name)
+
         self.write_xml()              ## varName
         if self.j.token == '[':
             self.write_xml()          ## '['
@@ -240,9 +256,9 @@ class CompilationEngine:
         '''
         global label_number
 
-        label1 = 'L' + str(label_number)
-        label2 = 'L' + str(label_number + 1)
-        label_number += 2
+        label1 = 'WHILE_EXP' + str(label_number)
+        label2 = 'WHILE_END' + str(label_number)
+        label_number += 1
 
         self.v.writeLabel(label1)
 
@@ -250,6 +266,8 @@ class CompilationEngine:
         self.write_xml()          ## '('
         self.compileExpression()  ## expression
         self.write_xml()          ## ')'
+
+        self.v.writeArithmetic(VMW.NOT)
 
         self.v.writeIf(label2)
 
@@ -283,9 +301,10 @@ class CompilationEngine:
         '''
         global label_number
 
-        label1 = 'L' + str(label_number)
-        label2 = 'L' + str(label_number + 2)
-        label_number += 2
+        label1 = 'IF_TRUE' + str(label_number)
+        label2 = 'IF_FALSE' + str(label_number)
+        label3 = 'IF_END' + str(label_number)
+        label_number += 1
 
         self.write_xml()              ## 'if'
         self.write_xml()              ## '('
@@ -293,14 +312,16 @@ class CompilationEngine:
         self.write_xml()              ## ')'
 
         self.v.writeIf(label1)
+        self.v.writeGoto(label2)
+        self.v.writeLabel(label1)
 
         self.write_xml()              ## '{'
         self.compileStatements()      ## statements
         self.write_xml()              ## '}'
 
-        self.v.writeGoto(label2)
+        self.v.writeGoto(label3)
 
-        self.v.writeLabel(label1)
+        self.v.writeLabel(label2)
 
         if self.j.token == 'else':
             self.write_xml()          ## 'else'
@@ -308,7 +329,7 @@ class CompilationEngine:
             self.compileStatements()  ## statements
             self.write_xml()          ## '}'
 
-        self.v.writeLabel(label2)
+        self.v.writeLabel(label3)
 
     def compileExpression(self):
         '''
@@ -345,8 +366,13 @@ class CompilationEngine:
             self.write_xml()          ## ')'
 
         elif self.j.token == '-' or self.j.token == '~':
+            op = self.j.token
             self.write_xml()    ## '-' | '~'
             self.compileTerm()  ## term
+            if op == '-':
+                self.v.writeArithmetic(VMW.NEG)
+            elif op == '~':
+                self.v.writeArithmetic(VMW.NOT)
 
         elif self.j.token_list[0] == '[':
             self.write_xml()          ## varName
@@ -358,8 +384,37 @@ class CompilationEngine:
             self.compileSubroutine()  ## subroutineCall
 
         else:
-            if self.j.tokenType() == JT.INT_CONST:
+            ## integerConstant
+            if self.j.token.isdecimal():
                 self.v.writePush(VMW.CONST, self.j.token)
+
+            ## keywordConstant
+            elif self.j.token in keyword_constant_set:
+                if self.j.token == 'true':
+                    self.v.writePush(VMW.CONST, 0)
+                    self.v.writeArithmetic(VMW.NOT)
+                elif self.j.token == 'false':
+                    self.v.writePush(VMW.CONST, 0)
+                elif self.j.token == 'this':
+                    self.v.writePush(VMW.POINTER, 0)
+
+            ## varName
+            elif self.j.token in self.s.tables[0] or self.j.token in self.s.tables[1]:
+                kind = self.s.kindOf(self.j.token)
+                index = self.s.indexOf(self.j.token)
+                if kind == ST.STATIC:
+                    self.v.writePush(VMW.STATIC, index)
+                elif kind == ST.FIELD:
+                    pass
+                elif kind == ST.ARG:
+                    self.v.writePush(VMW.ARG, index)
+                elif kind == ST.VAR:
+                    self.v.writePush(VMW.LOCAL, index)
+
+            ## stringConstant
+            else:
+                pass
+
             self.write_xml()  ## integerConstant | stringConstant | keywordConstant | varName
 
     def compileExpressionList(self):
@@ -375,8 +430,8 @@ class CompilationEngine:
             pass
 
         else:
-            self.compileExpression()      ## expression
             expressionList_count += 1
+            self.compileExpression()      ## expression
             while self.j.token == ',':
                 expressionList_count += 1
                 self.write_xml()          ## ','
@@ -389,9 +444,5 @@ class CompilationEngine:
         void -> void
         str, str -> void
         '''
-        if self.j.tokenType() == JT.IDENTIFIER:
-            if len(args) > 0:
-                self.s.define(self.j.identifier(), args[0], args[1])
-
         if self.j.hasMoreTokens():
             self.j.advance()

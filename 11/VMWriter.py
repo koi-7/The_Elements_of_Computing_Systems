@@ -2,7 +2,7 @@
 # coding: utf-8
 
 CONST   = 'constant'
-ARG     = 'arg'
+ARG     = 'argument'
 LOCAL   = 'local'
 STATIC  = 'static'
 THIS    = 'this'
@@ -54,21 +54,21 @@ class VMWriter:
         label コマンドを書く
         str -> void
         """
-        self.f.write('label' + label + '\n')
+        self.f.write('label ' + label + '\n')
 
     def writeGoto(self, label):
         """
         goto コマンドを書く
         str -> void
         """
-        self.f.write('goto' + label + '\n')
+        self.f.write('goto ' + label + '\n')
 
     def writeIf(self, label):
         """
         If-goto コマンドを書く
         str -> void
         """
-        self.f.write('if-goto' + label + '\n')
+        self.f.write('if-goto ' + label + '\n')
 
     def writeCall(self, name, nArgs):
         """
