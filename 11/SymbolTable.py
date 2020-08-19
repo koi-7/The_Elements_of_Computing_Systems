@@ -4,7 +4,7 @@
 NONE   = 'none'
 STATIC = 'static'
 FIELD  = 'field'
-ARG    = 'arg'
+ARG    = 'argument'
 VAR    = 'var'
 
 class SymbolTable:
@@ -17,7 +17,7 @@ class SymbolTable:
         self.count = {
             'static': 0,
             'field': 0,
-            'arg': 0,
+            'argument': 0,
             'var': 0,
         }
 
@@ -28,7 +28,7 @@ class SymbolTable:
         void -> void
         """
         self.tables[0] = {}
-        self.count['arg'] = 0
+        self.count['argument'] = 0
         self.count['var'] = 0
 
     def define(self, name, type, kind):
@@ -45,7 +45,7 @@ class SymbolTable:
             self.count['field'] += 1
         elif kind == ARG:
             self.tables[0][name] = (type, 'arg', self.count['arg'])
-            self.count['arg'] += 1
+            self.count['argument'] += 1
         elif kind == VAR:
             self.tables[0][name] = (type, 'var', self.count['var'])
             self.count['var'] += 1
