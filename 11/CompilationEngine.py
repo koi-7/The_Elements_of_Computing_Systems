@@ -10,6 +10,7 @@ import VMWriter as VMW
 subroutine_name = ''
 varDec_count = 0
 label_number = 0
+parameterList_count = 0
 expressionList_count = 0
 
 keyword_constant_set = {'true', 'false', 'null', 'this'}
@@ -74,6 +75,14 @@ class CompilationEngine:
         void -> void
         '''
         global subroutine_name
+        global parameterList_count
+        global varDec_count
+
+        parameterList_count = 0
+        varDec_count = 0
+        is_constructor = False
+        is_method = False
+
         # subroutineDec
         ## subroutineDec なし
         if self.j.token == '}':
@@ -83,7 +92,10 @@ class CompilationEngine:
             while self.j.token == 'constructor' or self.j.token == 'function' or self.j.token == 'method':
                 self.s.startSubroutine()
                 subroutine_name = self.class_name + '.'
-                # self.fout.write('<subroutineDec>' + '\n')
+                if self.j.token == 'constructor':
+                    is_constructor = True
+                elif self.j.token == 'method':
+                    is_method = True
                 self.write_xml()             ## 'constructor' | 'function' | 'method'
                 self.write_xml()             ## 'void' | type
                 subroutine_name += self.j.token
@@ -92,35 +104,65 @@ class CompilationEngine:
                 self.compileParameterList()  ## parameterList
                 self.write_xml()             ## ')'
 
-                self.compileSubroutine()     ## subroutineBody
-                # self.fout.write('</subroutineDec>' + '\n')
+                # self.compileSubroutine()     ## subroutineBody
+                # subroutineBody
+                self.write_xml()          ## '{'
+                self.compileVarDec()      ## varDec*
+                self.v.writeFunction(subroutine_name, varDec_count)
+                if is_constructor:
+                    self.v.writePush(VMW.CONST, parameterList_count)
+                    self.v.writeCall('Memory.alloc', 1)
+                    self.v.writePop(VMW.POINTER, 0)
+                    is_constructor = False
+                elif is_method:
+                    self.v.writePush(VMW.ARG, 0)
+                    is_method = False
+                self.compileStatements()  ## statements
+                self.write_xml()          ## '}'
+
+
+
                 pprint.pprint(self.s.tables[0])
                 print('')
 
-        # subroutineBody
-        elif self.j.token == '{':
-            global varDec_count
-            # self.fout.write('<subroutineBody>' + '\n')
-            self.write_xml()          ## '{'
-            self.compileVarDec()      ## varDec*
-            self.v.writeFunction(subroutine_name, varDec_count)
-            self.compileStatements()  ## statements
-            self.write_xml()          ## '}'
-            # self.fout.write('</subroutineBody>' + '\n')
+        # # subroutineBody
+        # elif self.j.token == '{':
+        #     self.write_xml()          ## '{'
+        #     self.compileVarDec()      ## varDec*
+        #     self.v.writeFunction(subroutine_name, varDec_count)
+        #     self.compileStatements()  ## statements
+        #     self.write_xml()          ## '}'
 
         # subroutineCall
         elif self.j.token_list[0] == '(' or self.j.token_list[0] == '.':
             global expressionList_count
+            expressionList_count = 0
             subroutine_name = ''
+
             if self.j.token_list[0] == '.':
-                subroutine_name = subroutine_name + self.j.token + '.'
+                if self.j.token in self.s.tables[0] or self.j.token in self.s.tables[1]:
+                    class_name = self.s.typeOf(self.j.token)
+                    subroutine_name = class_name + '.'
+                else:
+                    subroutine_name = self.j.token + '.'
                 self.write_xml()          ## className | varName
                 self.write_xml()          ## '.'
+            else:
+                subroutine_name = self.class_name + '.'
             subroutine_name = subroutine_name + self.j.token
+            if self.j.token == 'new':
+                pass
+            else:
+                expressionList_count += 1
             self.write_xml()              ## subroutineName
             self.write_xml()              ## '('
             self.compileExpressionList()  ## expressionList
             self.write_xml()              ## ')'
+
+            print(subroutine_name)
+
+            for i in range(expressionList_count):
+                self.v.writePush(VMW.LOCAL, i)
 
             self.v.writeCall(subroutine_name, expressionList_count)
             #self.v.writePop(VMW.TEMP, 0)
@@ -131,7 +173,7 @@ class CompilationEngine:
         () は含まない
         void -> void
         '''
-        # self.fout.write('<parameterList>' + '\n')
+        global parameterList_count
 
         # 引数なし
         if self.j.token == ')':
@@ -139,21 +181,18 @@ class CompilationEngine:
 
         # 引数あり
         else:
-            global expressionList_count
-            expressionList_count += 1
+            parameterList_count += 1
             type = self.j.token
             self.write_xml()            ## type
             kind = ST.ARG
             self.s.define(self.j.token, type, kind)
             self.write_xml()            ## varName
             while self.j.token == ',':
-                expressionList_count += 1
+                parameterList_count += 1
                 self.write_xml()        ## ','
                 self.write_xml()        ## type
                 self.s.define(self.j.token, type, kind)
                 self.write_xml()        ## varName
-
-        # self.fout.write('</parameterList>' + '\n')
 
     def compileVarDec(self):
         '''
@@ -246,7 +285,7 @@ class CompilationEngine:
         if kind == ST.STATIC:
             self.v.writePop(VMW.STATIC, index)
         elif kind == ST.FIELD:
-            pass
+            self.v.writePop(VMW.THIS, index)
         elif kind == ST.ARG:
             self.v.writePop(VMW.ARG, index)
         elif kind == ST.VAR:
@@ -365,7 +404,7 @@ class CompilationEngine:
         場合によって先読みをする必要がある
         void -> void
         '''
-        # self.fout.write('<term>' + '\n')
+        global keyword_constant_set
 
         if self.j.token == '(':
             self.write_xml()          ## '('
@@ -402,6 +441,8 @@ class CompilationEngine:
                     self.v.writeArithmetic(VMW.NOT)
                 elif self.j.token == 'false':
                     self.v.writePush(VMW.CONST, 0)
+                elif self.j.token == 'this':
+                    self.v.writePush(VMW.POINTER, 0)
 
             ## varName
             elif self.j.token in self.s.tables[0] or self.j.token in self.s.tables[1]:
@@ -431,7 +472,7 @@ class CompilationEngine:
         '''
         global expressionList_count
 
-        expressionList_count = 0
+        #expressionList_count = 0
         # self.fout.write('<expressionList>' + '\n')
 
         if self.j.token == ')':
