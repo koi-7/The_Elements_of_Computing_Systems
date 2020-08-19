@@ -33,7 +33,5 @@ def main():
         # c.fout.close()
         c.v.close()
 
-        print(c.s.tables)
-
 if __name__=='__main__':
     main()

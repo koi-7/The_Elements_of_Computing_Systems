@@ -1,6 +1,8 @@
 #!/usr/bin/python3
 # coding: utf-8
 
+import pprint
+
 import JackTokenizer as JT
 import SymbolTable as ST
 import VMWriter as VMW
@@ -9,6 +11,8 @@ subroutine_name = ''
 varDec_count = 0
 label_number = 0
 expressionList_count = 0
+
+keyword_constant_set = {'true', 'false', 'null', 'this'}
 
 
 class CompilationEngine:
@@ -29,7 +33,6 @@ class CompilationEngine:
         クラスをコンパイルする
         void -> void
         '''
-        # self.fout.write('<class>' + '\n')
         self.write_xml()           ## 'class'
         self.class_name = self.j.token
         self.write_xml()           ## className
@@ -37,7 +40,6 @@ class CompilationEngine:
         self.compileClassVarDec()  ## classVarDec*
         self.compileSubroutine()   ## subroutineDec*
         self.write_xml()           ## '}'
-        # self.fout.write('</class>' + '\n')
 
     def compileClassVarDec(self):
         '''
@@ -51,20 +53,20 @@ class CompilationEngine:
         # classVarDec 1個以上
         else:
             while self.j.token == 'static' or self.j.token == 'field':
-                # self.fout.write('<classVarDec>' + '\n')
                 if self.j.token == 'static':
                     kind = ST.STATIC
-                else:
+                elif self.j.token == 'field':
                     kind = ST.FIELD
                 self.write_xml()            ## 'static' or 'field'
                 type = self.j.token
                 self.write_xml()            ## type
-                self.write_xml(type, kind)            ## varName
+                self.s.define(self.j.token, type, kind)
+                self.write_xml()            ## varName
                 while self.j.token == ',':
                     self.write_xml()        ## ','
-                    self.write_xml(type, kind)        ## varName
+                    self.s.define(self.j.token, type, kind)
+                    self.write_xml()        ## varName
                 self.write_xml()            ## ';'
-                # self.fout.write('</classVarDec>' + '\n')
 
     def compileSubroutine(self):
         '''
@@ -75,8 +77,6 @@ class CompilationEngine:
         # subroutineDec
         ## subroutineDec なし
         if self.j.token == '}':
-            # self.fout.write('<subroutineDec>' + '\n')
-            # self.fout.write('</subroutineDec>' + '\n')
             pass
         ## subroutineDec あり
         elif self.j.token == 'constructor' or self.j.token == 'function' or self.j.token == 'method':
@@ -94,7 +94,8 @@ class CompilationEngine:
 
                 self.compileSubroutine()     ## subroutineBody
                 # self.fout.write('</subroutineDec>' + '\n')
-                print(self.s.tables[0])
+                pprint.pprint(self.s.tables[0])
+                print('')
 
         # subroutineBody
         elif self.j.token == '{':
@@ -143,12 +144,14 @@ class CompilationEngine:
             type = self.j.token
             self.write_xml()            ## type
             kind = ST.ARG
-            self.write_xml(type, kind)            ## varName
+            self.s.define(self.j.token, type, kind)
+            self.write_xml()            ## varName
             while self.j.token == ',':
                 expressionList_count += 1
                 self.write_xml()        ## ','
                 self.write_xml()        ## type
-                self.write_xml(type, kind)        ## varName
+                self.s.define(self.j.token, type, kind)
+                self.write_xml()        ## varName
 
         # self.fout.write('</parameterList>' + '\n')
 
@@ -172,11 +175,13 @@ class CompilationEngine:
                 self.write_xml()            ## 'var'
                 type = self.j.token
                 self.write_xml()            ## type
-                self.write_xml(type, kind)            ## varName
+                self.s.define(self.j.token, type, kind)
+                self.write_xml()            ## varName
                 while self.j.token == ',':
                     varDec_count += 1
                     self.write_xml()        ## ','
-                    self.write_xml(type, kind)        ## varName
+                    self.s.define(self.j.token, type, kind)
+                    self.write_xml()        ## varName
                 self.write_xml()            ## ';'
                 # self.fout.write('</varDec>' + '\n')
 
@@ -223,8 +228,12 @@ class CompilationEngine:
         let 文をコンパイルする
         void -> void
         '''
-        # self.fout.write('<letStatement>' + '\n')
         self.write_xml()              ## 'let'
+
+        name = self.j.token
+        kind = self.s.kindOf(name)
+        index = self.s.indexOf(name)
+
         self.write_xml()              ## varName
         if self.j.token == '[':
             self.write_xml()          ## '['
@@ -233,8 +242,15 @@ class CompilationEngine:
         self.write_xml()              ## '='
         self.compileExpression()      ## expression
         self.write_xml()              ## ';'
-        # self.fout.write('</letStatement>' + '\n')
-        self.v.writePop(VMW.LOCAL, 0)
+
+        if kind == ST.STATIC:
+            self.v.writePop(VMW.STATIC, index)
+        elif kind == ST.FIELD:
+            pass
+        elif kind == ST.ARG:
+            self.v.writePop(VMW.ARG, index)
+        elif kind == ST.VAR:
+            self.v.writePop(VMW.LOCAL, index)
 
     def compileWhile(self):
         '''
@@ -253,6 +269,8 @@ class CompilationEngine:
         self.write_xml()          ## '('
         self.compileExpression()  ## expression
         self.write_xml()          ## ')'
+
+        self.v.writeArithmetic(VMW.NOT)
 
         self.v.writeIf(label2)
 
@@ -360,6 +378,8 @@ class CompilationEngine:
             self.compileTerm()  ## term
             if op == '-':
                 self.v.writeArithmetic(VMW.NEG)
+            elif op == '~':
+                self.v.writeArithmetic(VMW.NOT)
 
         elif self.j.token_list[0] == '[':
             self.write_xml()          ## varName
@@ -371,8 +391,35 @@ class CompilationEngine:
             self.compileSubroutine()  ## subroutineCall
 
         else:
-            if self.j.tokenType() == JT.INT_CONST:
+            ## integerConstant
+            if self.j.token.isdecimal():
                 self.v.writePush(VMW.CONST, self.j.token)
+
+            ## keywordConstant
+            elif self.j.token in keyword_constant_set:
+                if self.j.token == 'true':
+                    self.v.writePush(VMW.CONST, 0)
+                    self.v.writeArithmetic(VMW.NOT)
+                elif self.j.token == 'false':
+                    self.v.writePush(VMW.CONST, 0)
+
+            ## varName
+            elif self.j.token in self.s.tables[0] or self.j.token in self.s.tables[1]:
+                kind = self.s.kindOf(self.j.token)
+                index = self.s.indexOf(self.j.token)
+                if kind == ST.STATIC:
+                    self.v.writePush(VMW.STATIC, index)
+                elif kind == ST.FIELD:
+                    pass
+                elif kind == ST.ARG:
+                    self.v.writePush(VMW.ARG, index)
+                elif kind == ST.VAR:
+                    self.v.writePush(VMW.LOCAL, index)
+
+            ## stringConstant
+            else:
+                pass
+
             self.write_xml()  ## integerConstant | stringConstant | keywordConstant | varName
 
         # self.fout.write('</term>' + '\n')
@@ -391,8 +438,8 @@ class CompilationEngine:
             pass
 
         else:
-            self.compileExpression()      ## expression
             expressionList_count += 1
+            self.compileExpression()      ## expression
             while self.j.token == ',':
                 expressionList_count += 1
                 self.write_xml()          ## ','
@@ -400,16 +447,12 @@ class CompilationEngine:
 
         # self.fout.write('</expressionList>' + '\n')
 
-    def write_xml(self, *args):
+    def write_xml(self):
         '''
         次のトークンを読み込む
         引数が存在する場合、シンボルテーブルへのデータ追加も行う
         void -> void
         str, str -> void
         '''
-        if self.j.tokenType() == JT.IDENTIFIER:
-            if len(args) > 0:
-                self.s.define(self.j.identifier(), args[0], args[1])
-
         if self.j.hasMoreTokens():
             self.j.advance()
