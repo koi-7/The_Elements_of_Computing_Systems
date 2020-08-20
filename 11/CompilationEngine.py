@@ -141,8 +141,8 @@ class CompilationEngine:
 
             print(subroutine_name)
 
-            for i in range(expressionList_count):
-                self.v.writePush(VMW.LOCAL, i)
+            #for i in range(expressionList_count):
+            #    self.v.writePush(VMW.LOCAL, i)
 
             self.v.writeCall(subroutine_name, expressionList_count)
             #self.v.writePop(VMW.TEMP, 0)
@@ -227,6 +227,7 @@ class CompilationEngine:
         '''
         self.write_xml()          ## 'do'
         self.compileSubroutine()  ## subroutineCall
+        self.v.writePop(VMW.TEMP, 0)
         self.write_xml()          ## ';'
 
     def compileLet(self):
