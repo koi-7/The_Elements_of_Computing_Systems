@@ -44,7 +44,7 @@ class SymbolTable:
             self.tables[1][name] = (type, 'field', self.count['field'])
             self.count['field'] += 1
         elif kind == ARG:
-            self.tables[0][name] = (type, 'arg', self.count['arg'])
+            self.tables[0][name] = (type, 'argument', self.count['argument'])
             self.count['argument'] += 1
         elif kind == VAR:
             self.tables[0][name] = (type, 'var', self.count['var'])

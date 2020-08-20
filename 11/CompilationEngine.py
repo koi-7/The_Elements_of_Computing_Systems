@@ -91,6 +91,8 @@ class CompilationEngine:
                 parameterList_count = 0
                 varDec_count = 0
 
+                self.s.startSubroutine()
+
                 if self.j.token == 'constructor':
                     pass
 
@@ -111,6 +113,8 @@ class CompilationEngine:
 
                 if self.j.token == 'method':
                     pass
+
+                pprint.pprint(self.s.tables[0])
 
         # subroutineBody
         # elif self.j.token == '{':
@@ -139,11 +143,6 @@ class CompilationEngine:
             self.compileExpressionList()  ## expressionList
             self.write_xml()              ## ')'
 
-            print(subroutine_name)
-
-            #for i in range(expressionList_count):
-            #    self.v.writePush(VMW.LOCAL, i)
-
             self.v.writeCall(subroutine_name, expressionList_count)
             #self.v.writePop(VMW.TEMP, 0)
 
@@ -153,23 +152,29 @@ class CompilationEngine:
         () は含まない
         void -> void
         '''
+        global parameterList_count
+        parameterList_count = 0
+
         # 引数なし
         if self.j.token == ')':
             pass
 
         # 引数あり
         else:
-            paremeterList_count += 1
+            parameterList_count += 1
             type = self.j.token
             self.write_xml()            ## type
             name = self.j.token
-            self.s.define(name, ST.ARG, kind)
+            self.s.define(name, type, ST.ARG)
             self.write_xml()            ## varName
             while self.j.token == ',':
                 parameterList_count += 1
                 self.write_xml()        ## ','
+                type = self.j.token
                 self.write_xml()        ## type
-                self.write_xml(type, kind)        ## varName
+                name = self.j.token
+                self.s.define(name, type, ST.ARG)
+                self.write_xml()        ## varName
 
     def compileVarDec(self):
         '''
@@ -248,6 +253,11 @@ class CompilationEngine:
             self.write_xml()          ## ']'
         self.write_xml()              ## '='
         self.compileExpression()      ## expression
+
+        if kind == 'var':
+            kind = VMW.LOCAL
+        self.v.writePop(kind, index)
+
         self.write_xml()              ## ';'
 
     def compileWhile(self):
@@ -438,7 +448,7 @@ class CompilationEngine:
                 self.write_xml()          ## ','
                 self.compileExpression()  ## expression
 
-    def write_xml(self, *args):
+    def write_xml(self):
         '''
         次のトークンを読み込む
         引数が存在する場合、シンボルテーブルへのデータ追加も行う
