@@ -312,7 +312,7 @@ class CompilationEngine:
         elif kind == 'static':
             kind = VMW.STATIC
         else:
-            kind = 'aaa'
+            kind = VMW.ARG
 
         self.write_xml()              ## varName
 
@@ -494,6 +494,8 @@ class CompilationEngine:
                     self.v.writePush(VMW.CONST, 0)
                 elif self.j.token == 'this':
                     self.v.writePush(VMW.POINTER, 0)
+                elif self.j.token == 'null':
+                    self.v.writePush(VMW.CONST, 0)
 
             ## varName
             elif self.j.token in self.s.tables[0] or self.j.token in self.s.tables[1]:
