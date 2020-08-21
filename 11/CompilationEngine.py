@@ -304,21 +304,34 @@ class CompilationEngine:
         kind = self.s.kindOf(name)
         index = self.s.indexOf(name)
 
-        self.write_xml()              ## varName
-        if self.j.token == '[':
-            self.write_xml()          ## '['
-            self.compileExpression()  ## expression
-            self.write_xml()          ## ']'
-        self.write_xml()              ## '='
-        self.compileExpression()      ## expression
-
         if kind == 'var':
             kind = VMW.LOCAL
         elif kind == 'field':
             kind = VMW.THIS
-        self.v.writePop(kind, index)
+        else:
+            kind = 'aaa'
 
-        self.write_xml()              ## ';'
+        self.write_xml()              ## varName
+
+        if self.j.token == '[':
+            self.write_xml()          ## '['
+            self.compileExpression()  ## expression
+            self.write_xml()          ## ']'
+            self.v.writePush(kind, index)
+            self.v.writeArithmetic(VMW.ADD)
+            self.write_xml()              ## '='
+            self.compileExpression()      ## expression
+            self.v.writePop(VMW.TEMP, 0)
+            self.v.writePop(VMW.POINTER, 1)
+            self.v.writePush(VMW.TEMP, 0)
+            self.v.writePop(VMW.THAT, 0)
+            self.write_xml()              ## ';'
+
+        else:
+            self.write_xml()              ## '='
+            self.compileExpression()      ## expression
+            self.v.writePop(kind, index)
+            self.write_xml()              ## ';'
 
     def compileWhile(self):
         '''
@@ -448,10 +461,18 @@ class CompilationEngine:
                 self.v.writeArithmetic(VMW.NOT)
 
         elif self.j.token_list[0] == '[':
+            kind = self.s.kindOf(self.j.token)
+            if kind == ST.VAR:
+                kind = VMW.LOCAL
+            index = self.s.indexOf(self.j.token)
             self.write_xml()          ## varName
             self.write_xml()          ## '['
             self.compileExpression()  ## expression
             self.write_xml()          ## ']'
+            self.v.writePush(kind, index)
+            self.v.writeArithmetic(VMW.ADD)
+            self.v.writePop(VMW.POINTER, 1)
+            self.v.writePush(VMW.THAT, 0)
 
         elif self.j.token_list[0] == '(' or self.j.token_list[0] == '.':
             self.compileSubroutine()  ## subroutineCall
@@ -486,7 +507,12 @@ class CompilationEngine:
 
             ## stringConstant
             else:
-                pass
+                str = self.j.stringVal()
+                self.v.writePush(VMW.CONST, len(str))
+                self.v.writeCall('String.new', 1)
+                for s in str:
+                    self.v.writePush(VMW.CONST, ord(s))
+                    self.v.writeCall('String.appendChar', 2)
 
             self.write_xml()  ## integerConstant | stringConstant | keywordConstant | varName
 
