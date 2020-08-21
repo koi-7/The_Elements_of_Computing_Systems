@@ -33,13 +33,13 @@ def main():
         # c.fout.close()
         c.v.close()
 
-    # print('')
-    # print('')
-    # print('')
-    # print(c.s.tables[1])
-    # print('')
-    # print('')
-    # print('')
+    print('')
+    print('')
+    print('')
+    print(c.s.tables[1])
+    print('')
+    print('')
+    print('')
 
 if __name__=='__main__':
     main()

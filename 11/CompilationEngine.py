@@ -7,6 +7,7 @@ import JackTokenizer as JT
 import SymbolTable as ST
 import VMWriter as VMW
 
+classVarDec_count = 0
 subroutine_name = ''
 varDec_count = 0
 label_number = 0
@@ -48,6 +49,8 @@ class CompilationEngine:
         スタティック宣言またはフィールド宣言をコンパイルする
         void -> void
         '''
+        global classVarDec_count
+
         # classVarDec 0個
         if self.j.token != 'static' and self.j.token != 'field':
             pass
@@ -55,6 +58,7 @@ class CompilationEngine:
         # classVarDec 1個以上
         else:
             while self.j.token == 'static' or self.j.token == 'field':
+                classVarDec_count += 1
                 if self.j.token == 'static':
                     kind = ST.STATIC
                 elif self.j.token == 'field':
@@ -65,6 +69,7 @@ class CompilationEngine:
                 self.s.define(self.j.token, type, kind)
                 self.write_xml()            ## varName
                 while self.j.token == ',':
+                    classVarDec_count += 1
                     self.write_xml()        ## ','
                     self.s.define(self.j.token, type, kind)
                     self.write_xml()        ## varName
@@ -75,6 +80,7 @@ class CompilationEngine:
         メソッド、ファンクション、コンストラクタをコンパイルする
         void -> void
         '''
+        global classVarDec_count
         global parameterList_count
         global varDec_count
         global expressionList_count
@@ -105,7 +111,7 @@ class CompilationEngine:
                     self.write_xml()          ## '{'
                     self.compileVarDec()      ## varDec*
                     self.v.writeFunction(subroutine_name, varDec_count)
-                    self.v.writePush(VMW.CONST, parameterList_count)
+                    self.v.writePush(VMW.CONST, classVarDec_count)
                     self.v.writeCall('Memory.alloc', 1)
                     self.v.writePop(VMW.POINTER, 0)
                     self.compileStatements()  ## statements
@@ -177,6 +183,14 @@ class CompilationEngine:
                     subroutine_name = type
                     index = self.s.indexOf(self.j.token)
                     self.v.writePush(VMW.LOCAL, index)
+                elif self.s.kindOf(self.j.token) == ST.FIELD:
+                    # p.257 の手法
+                    expressionList_count += 1
+                    type = self.s.typeOf(self.j.token)
+                    subroutine_name = type
+                    index = self.s.indexOf(self.j.token)
+                    self.v.writePush(VMW.THIS, index)
+
                 self.write_xml()          ## className | varName
                 subroutine_name += self.j.token
                 self.write_xml()          ## '.'
