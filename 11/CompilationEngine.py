@@ -58,10 +58,10 @@ class CompilationEngine:
         # classVarDec 1個以上
         else:
             while self.j.token == 'static' or self.j.token == 'field':
-                classVarDec_count += 1
                 if self.j.token == 'static':
                     kind = ST.STATIC
                 elif self.j.token == 'field':
+                    classVarDec_count += 1
                     kind = ST.FIELD
                 self.write_xml()            ## 'static' or 'field'
                 type = self.j.token
@@ -69,7 +69,8 @@ class CompilationEngine:
                 self.s.define(self.j.token, type, kind)
                 self.write_xml()            ## varName
                 while self.j.token == ',':
-                    classVarDec_count += 1
+                    if kind == ST.FIELD:
+                        classVarDec_count += 1
                     self.write_xml()        ## ','
                     self.s.define(self.j.token, type, kind)
                     self.write_xml()        ## varName
@@ -308,6 +309,8 @@ class CompilationEngine:
             kind = VMW.LOCAL
         elif kind == 'field':
             kind = VMW.THIS
+        elif kind == 'static':
+            kind = VMW.STATIC
         else:
             kind = 'aaa'
 
