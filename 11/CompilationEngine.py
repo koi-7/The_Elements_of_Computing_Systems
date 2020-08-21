@@ -94,7 +94,22 @@ class CompilationEngine:
                 self.s.startSubroutine()
 
                 if self.j.token == 'constructor':
-                    pass
+                    self.write_xml()             ## 'constructor'
+                    self.write_xml()             ## 'void' | type
+                    subroutine_name = self.class_name + '.' + self.j.token
+                    self.write_xml()             ## subroutineName
+                    self.write_xml()             ## '('
+                    self.compileParameterList()  ## parameterList
+                    self.write_xml()             ## ')'
+                    #self.compileSubroutine()     ## subroutineBody
+                    self.write_xml()          ## '{'
+                    self.compileVarDec()      ## varDec*
+                    self.v.writeFunction(subroutine_name, varDec_count)
+                    self.v.writePush(VMW.CONST, parameterList_count)
+                    self.v.writeCall('Memory.alloc', 1)
+                    self.v.writePop(VMW.POINTER, 0)
+                    self.compileStatements()  ## statements
+                    self.write_xml()          ## '}'
 
                 elif self.j.token == 'function':
                     self.write_xml()             ## 'function'
@@ -111,8 +126,25 @@ class CompilationEngine:
                     self.compileStatements()  ## statements
                     self.write_xml()          ## '}'
 
-                if self.j.token == 'method':
-                    pass
+                elif self.j.token == 'method':
+                    self.s.define('this', self.class_name, ST.ARG)
+                    self.write_xml()             ## 'method'
+                    self.write_xml()             ## 'void' | type
+                    subroutine_name = self.class_name + '.' + self.j.token
+                    self.write_xml()             ## subroutineName
+                    self.write_xml()             ## '('
+                    self.compileParameterList()  ## parameterList
+                    self.write_xml()             ## ')'
+                    #self.compileSubroutine()     ## subroutineBody
+                    self.write_xml()          ## '{'
+                    self.compileVarDec()      ## varDec*
+
+                    self.v.writeFunction(subroutine_name, varDec_count)
+                    self.v.writePush(VMW.ARG, 0)
+                    self.v.writePop(VMW.POINTER, 0)
+
+                    self.compileStatements()  ## statements
+                    self.write_xml()          ## '}'
 
                 pprint.pprint(self.s.tables[0])
 
@@ -127,8 +159,14 @@ class CompilationEngine:
         elif self.j.token_list[0] == '(' or self.j.token_list[0] == '.':
             subroutine_name = ''
             expressionList_count = 0
+
             if self.j.token_list[0] == '(':
-                pass
+                # p.257 の手法
+                expressionList_count += 1
+                type = self.class_name
+                subroutine_name = type + '.'
+                index = 0
+                self.v.writePush(VMW.POINTER, index)
             elif self.j.token_list[0] == '.':
                 if self.s.kindOf(self.j.token) == ST.NONE:
                     subroutine_name = self.j.token
@@ -142,6 +180,7 @@ class CompilationEngine:
                 self.write_xml()          ## className | varName
                 subroutine_name += self.j.token
                 self.write_xml()          ## '.'
+
             subroutine_name += self.j.token
             self.write_xml()              ## subroutineName
             self.write_xml()              ## '('
@@ -158,7 +197,7 @@ class CompilationEngine:
         void -> void
         '''
         global parameterList_count
-        parameterList_count = 0
+        #parameterList_count = 0
 
         # 引数なし
         if self.j.token == ')':
@@ -261,6 +300,8 @@ class CompilationEngine:
 
         if kind == 'var':
             kind = VMW.LOCAL
+        elif kind == 'field':
+            kind = VMW.THIS
         self.v.writePop(kind, index)
 
         self.write_xml()              ## ';'
@@ -335,17 +376,19 @@ class CompilationEngine:
         self.compileStatements()      ## statements
         self.write_xml()              ## '}'
 
-        self.v.writeGoto(label3)
-
-        self.v.writeLabel(label2)
-
+        ## else 節あり
         if self.j.token == 'else':
+            self.v.writeGoto(label3)
+            self.v.writeLabel(label2)
             self.write_xml()          ## 'else'
             self.write_xml()          ## '{'
             self.compileStatements()  ## statements
             self.write_xml()          ## '}'
+            self.v.writeLabel(label3)
 
-        self.v.writeLabel(label3)
+        ## else 節なし
+        else:
+            self.v.writeLabel(label2)
 
     def compileExpression(self):
         '''
@@ -421,7 +464,7 @@ class CompilationEngine:
                 if kind == ST.STATIC:
                     self.v.writePush(VMW.STATIC, index)
                 elif kind == ST.FIELD:
-                    pass
+                    self.v.writePush(VMW.THIS, index)
                 elif kind == ST.ARG:
                     self.v.writePush(VMW.ARG, index)
                 elif kind == ST.VAR:
