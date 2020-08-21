@@ -133,7 +133,12 @@ class CompilationEngine:
                 if self.s.kindOf(self.j.token) == ST.NONE:
                     subroutine_name = self.j.token
                 elif self.s.kindOf(self.j.token) == ST.VAR:
-                    pass
+                    # p.257 の手法
+                    expressionList_count += 1
+                    type = self.s.typeOf(self.j.token)
+                    subroutine_name = type
+                    index = self.s.indexOf(self.j.token)
+                    self.v.writePush(VMW.LOCAL, index)
                 self.write_xml()          ## className | varName
                 subroutine_name += self.j.token
                 self.write_xml()          ## '.'
@@ -435,7 +440,8 @@ class CompilationEngine:
         '''
         global expressionList_count
 
-        expressionList_count = 0
+        ## 初期化は subroutineCall で ##
+        # expressionList_count = 0
 
         if self.j.token == ')':
             pass
