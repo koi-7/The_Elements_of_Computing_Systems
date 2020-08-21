@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # coding: utf-8
 
-import sys, os, glob
+import sys, os, glob, pprint
 import CompilationEngine as CE
 
 def main():
@@ -15,7 +15,7 @@ def main():
             path = path + '/'
         input_file_list = glob.glob(path + '*.jack')
 
-    # パース
+    # パース・コンパイル
     for input_file in input_file_list:
         output_file = input_file.replace('.jack', '.vm')
         c = CE.CompilationEngine(input_file, output_file)
@@ -30,16 +30,7 @@ def main():
             c.compileClass()
 
         c.j.f.close()
-        # c.fout.close()
         c.v.close()
-
-    print('')
-    print('')
-    print('')
-    print(c.s.tables[1])
-    print('')
-    print('')
-    print('')
 
 if __name__=='__main__':
     main()

@@ -108,7 +108,7 @@ class CompilationEngine:
                     self.write_xml()             ## '('
                     self.compileParameterList()  ## parameterList
                     self.write_xml()             ## ')'
-                    #self.compileSubroutine()     ## subroutineBody
+                    # subroutineBody
                     self.write_xml()          ## '{'
                     self.compileVarDec()      ## varDec*
                     self.v.writeFunction(subroutine_name, varDec_count)
@@ -126,7 +126,7 @@ class CompilationEngine:
                     self.write_xml()             ## '('
                     self.compileParameterList()  ## parameterList
                     self.write_xml()             ## ')'
-                    #self.compileSubroutine()     ## subroutineBody
+                    # subroutineBody
                     self.write_xml()          ## '{'
                     self.compileVarDec()      ## varDec*
                     self.v.writeFunction(subroutine_name, varDec_count)
@@ -142,7 +142,7 @@ class CompilationEngine:
                     self.write_xml()             ## '('
                     self.compileParameterList()  ## parameterList
                     self.write_xml()             ## ')'
-                    #self.compileSubroutine()     ## subroutineBody
+                    # subroutineBody
                     self.write_xml()          ## '{'
                     self.compileVarDec()      ## varDec*
 
@@ -154,13 +154,6 @@ class CompilationEngine:
                     self.write_xml()          ## '}'
 
                 pprint.pprint(self.s.tables[0])
-
-        # subroutineBody
-        # elif self.j.token == '{':
-        #     self.write_xml()          ## '{'
-        #     self.compileVarDec()      ## varDec*
-        #     self.compileStatements()  ## statements
-        #     self.write_xml()          ## '}'
 
         # subroutineCall
         elif self.j.token_list[0] == '(' or self.j.token_list[0] == '.':
