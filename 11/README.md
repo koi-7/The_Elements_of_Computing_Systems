@@ -116,14 +116,14 @@ test_dir
     ```
     ///// let a[i] = exp /////
 
-    push ...       // i の評価結果を push
+    push ...       // i の評価結果を push（compileExpression() に任せる）
     push ...       // 配列 a の push
     add            // アドレス計算
-    push ...       // exp の評価結果を push
+    push ...       // exp の評価結果を push（compileExpression() に任せる）
     pop temp 0     // exp の結果を temp へ退避
-    pop pointer 1  //
-    push temp 0
-    pop that 0
+    pop pointer 1  // a[i] のアドレスを pointer へ pop
+    push temp 0    // exp の結果をスタックに戻す
+    pop that 0     // exp の結果を that へ pop
     ```
 
 #### compileWhile
