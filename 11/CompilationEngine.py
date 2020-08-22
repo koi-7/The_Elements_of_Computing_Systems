@@ -20,11 +20,11 @@ keyword_constant_set = {'true', 'false', 'null', 'this'}
 
 class CompilationEngine:
     def __init__(self, input_file, output_file):
-        '''
+        """
         与えられた入力と出力に対して新しいコンパイルエンジンを生成する
         次に呼ぶルーチンは compileClass() でなければならない
         str, str -> void
-        '''
+        """
         self.j = JT.JackTokenizer(input_file)
         self.s = ST.SymbolTable()
         self.v = VMW.VMWriter(output_file)
@@ -32,23 +32,23 @@ class CompilationEngine:
         self.class_name = ''
 
     def compileClass(self):
-        '''
+        """
         クラスをコンパイルする
         void -> void
-        '''
-        self.write_xml()           ## 'class'
+        """
+        self.forward()           ## 'class'
         self.class_name = self.j.token
-        self.write_xml()           ## className
-        self.write_xml()           ## '{'
+        self.forward()           ## className
+        self.forward()           ## '{'
         self.compileClassVarDec()  ## classVarDec*
         self.compileSubroutine()   ## subroutineDec*
-        self.write_xml()           ## '}'
+        self.forward()           ## '}'
 
     def compileClassVarDec(self):
-        '''
+        """
         スタティック宣言またはフィールド宣言をコンパイルする
         void -> void
-        '''
+        """
         global classVarDec_count
 
         # classVarDec 0個
@@ -63,24 +63,24 @@ class CompilationEngine:
                 elif self.j.token == 'field':
                     classVarDec_count += 1
                     kind = ST.FIELD
-                self.write_xml()            ## 'static' or 'field'
+                self.forward()            ## 'static' or 'field'
                 type = self.j.token
-                self.write_xml()            ## type
+                self.forward()            ## type
                 self.s.define(self.j.token, type, kind)
-                self.write_xml()            ## varName
+                self.forward()            ## varName
                 while self.j.token == ',':
                     if kind == ST.FIELD:
                         classVarDec_count += 1
-                    self.write_xml()        ## ','
+                    self.forward()        ## ','
                     self.s.define(self.j.token, type, kind)
-                    self.write_xml()        ## varName
-                self.write_xml()            ## ';'
+                    self.forward()        ## varName
+                self.forward()            ## ';'
 
     def compileSubroutine(self):
-        '''
+        """
         メソッド、ファンクション、コンストラクタをコンパイルする
         void -> void
-        '''
+        """
         global classVarDec_count
         global parameterList_count
         global varDec_count
@@ -101,49 +101,49 @@ class CompilationEngine:
                 self.s.startSubroutine()
 
                 if self.j.token == 'constructor':
-                    self.write_xml()             ## 'constructor'
-                    self.write_xml()             ## 'void' | type
+                    self.forward()             ## 'constructor'
+                    self.forward()             ## 'void' | type
                     subroutine_name = self.class_name + '.' + self.j.token
-                    self.write_xml()             ## subroutineName
-                    self.write_xml()             ## '('
+                    self.forward()             ## subroutineName
+                    self.forward()             ## '('
                     self.compileParameterList()  ## parameterList
-                    self.write_xml()             ## ')'
+                    self.forward()             ## ')'
                     # subroutineBody
-                    self.write_xml()          ## '{'
+                    self.forward()          ## '{'
                     self.compileVarDec()      ## varDec*
                     self.v.writeFunction(subroutine_name, varDec_count)
                     self.v.writePush(VMW.CONST, classVarDec_count)
                     self.v.writeCall('Memory.alloc', 1)
                     self.v.writePop(VMW.POINTER, 0)
                     self.compileStatements()  ## statements
-                    self.write_xml()          ## '}'
+                    self.forward()          ## '}'
 
                 elif self.j.token == 'function':
-                    self.write_xml()             ## 'function'
-                    self.write_xml()             ## 'void' | type
+                    self.forward()             ## 'function'
+                    self.forward()             ## 'void' | type
                     subroutine_name = self.class_name + '.' + self.j.token
-                    self.write_xml()             ## subroutineName
-                    self.write_xml()             ## '('
+                    self.forward()             ## subroutineName
+                    self.forward()             ## '('
                     self.compileParameterList()  ## parameterList
-                    self.write_xml()             ## ')'
+                    self.forward()             ## ')'
                     # subroutineBody
-                    self.write_xml()          ## '{'
+                    self.forward()          ## '{'
                     self.compileVarDec()      ## varDec*
                     self.v.writeFunction(subroutine_name, varDec_count)
                     self.compileStatements()  ## statements
-                    self.write_xml()          ## '}'
+                    self.forward()          ## '}'
 
                 elif self.j.token == 'method':
                     self.s.define('this', self.class_name, ST.ARG)
-                    self.write_xml()             ## 'method'
-                    self.write_xml()             ## 'void' | type
+                    self.forward()             ## 'method'
+                    self.forward()             ## 'void' | type
                     subroutine_name = self.class_name + '.' + self.j.token
-                    self.write_xml()             ## subroutineName
-                    self.write_xml()             ## '('
+                    self.forward()             ## subroutineName
+                    self.forward()             ## '('
                     self.compileParameterList()  ## parameterList
-                    self.write_xml()             ## ')'
+                    self.forward()             ## ')'
                     # subroutineBody
-                    self.write_xml()          ## '{'
+                    self.forward()          ## '{'
                     self.compileVarDec()      ## varDec*
 
                     self.v.writeFunction(subroutine_name, varDec_count)
@@ -151,7 +151,7 @@ class CompilationEngine:
                     self.v.writePop(VMW.POINTER, 0)
 
                     self.compileStatements()  ## statements
-                    self.write_xml()          ## '}'
+                    self.forward()          ## '}'
 
                 pprint.pprint(self.s.tables[0])
 
@@ -185,25 +185,25 @@ class CompilationEngine:
                     index = self.s.indexOf(self.j.token)
                     self.v.writePush(VMW.THIS, index)
 
-                self.write_xml()          ## className | varName
+                self.forward()          ## className | varName
                 subroutine_name += self.j.token
-                self.write_xml()          ## '.'
+                self.forward()          ## '.'
 
             subroutine_name += self.j.token
-            self.write_xml()              ## subroutineName
-            self.write_xml()              ## '('
+            self.forward()              ## subroutineName
+            self.forward()              ## '('
             self.compileExpressionList()  ## expressionList
-            self.write_xml()              ## ')'
+            self.forward()              ## ')'
 
             self.v.writeCall(subroutine_name, expressionList_count)
             #self.v.writePop(VMW.TEMP, 0)
 
     def compileParameterList(self):
-        '''
+        """
         パラメータのリストをコンパイルする
         () は含まない
         void -> void
-        '''
+        """
         global parameterList_count
         #parameterList_count = 0
 
@@ -215,24 +215,24 @@ class CompilationEngine:
         else:
             parameterList_count += 1
             type = self.j.token
-            self.write_xml()            ## type
+            self.forward()            ## type
             name = self.j.token
             self.s.define(name, type, ST.ARG)
-            self.write_xml()            ## varName
+            self.forward()            ## varName
             while self.j.token == ',':
                 parameterList_count += 1
-                self.write_xml()        ## ','
+                self.forward()        ## ','
                 type = self.j.token
-                self.write_xml()        ## type
+                self.forward()        ## type
                 name = self.j.token
                 self.s.define(name, type, ST.ARG)
-                self.write_xml()        ## varName
+                self.forward()        ## varName
 
     def compileVarDec(self):
-        '''
+        """
         var 宣言をコンパイルする
         void -> void
-        '''
+        """
         global varDec_count
         # varDec 0個
         if self.j.token != 'var':
@@ -243,24 +243,24 @@ class CompilationEngine:
             while self.j.token == 'var':
                 varDec_count += 1
                 kind = ST.VAR
-                self.write_xml()            ## 'var'
+                self.forward()            ## 'var'
                 type = self.j.token
-                self.write_xml()            ## type
+                self.forward()            ## type
                 self.s.define(self.j.token, type, ST.VAR)
-                self.write_xml()            ## varName
+                self.forward()            ## varName
                 while self.j.token == ',':
                     varDec_count += 1
-                    self.write_xml()        ## ','
+                    self.forward()        ## ','
                     self.s.define(self.j.token, type, ST.VAR)
-                    self.write_xml()        ## varName
-                self.write_xml()            ## ';'
+                    self.forward()        ## varName
+                self.forward()            ## ';'
 
     def compileStatements(self):
-        '''
+        """
         一連の文をコンパイルする
         {} は含まない
         void -> void
-        '''
+        """
         while self.j.token == 'let' or self.j.token == 'if' or self.j.token == 'while' or self.j.token == 'do' or self.j.token == 'return':
             if self.j.token == 'let':
                 self.compileLet()     ## letStatement
@@ -278,21 +278,21 @@ class CompilationEngine:
                 self.compileReturn()  ## returnStatement
 
     def compileDo(self):
-        '''
+        """
         do 文をコンパイルする
         void -> void
-        '''
-        self.write_xml()          ## 'do'
+        """
+        self.forward()          ## 'do'
         self.compileSubroutine()  ## subroutineCall
         self.v.writePop(VMW.TEMP, 0)
-        self.write_xml()          ## ';'
+        self.forward()          ## ';'
 
     def compileLet(self):
-        '''
+        """
         let 文をコンパイルする
         void -> void
-        '''
-        self.write_xml()              ## 'let'
+        """
+        self.forward()              ## 'let'
 
         name = self.j.token
         kind = self.s.kindOf(name)
@@ -307,33 +307,33 @@ class CompilationEngine:
         else:
             kind = VMW.ARG
 
-        self.write_xml()              ## varName
+        self.forward()              ## varName
 
         if self.j.token == '[':
-            self.write_xml()          ## '['
+            self.forward()          ## '['
             self.compileExpression()  ## expression
-            self.write_xml()          ## ']'
+            self.forward()          ## ']'
             self.v.writePush(kind, index)
             self.v.writeArithmetic(VMW.ADD)
-            self.write_xml()              ## '='
+            self.forward()              ## '='
             self.compileExpression()      ## expression
             self.v.writePop(VMW.TEMP, 0)
             self.v.writePop(VMW.POINTER, 1)
             self.v.writePush(VMW.TEMP, 0)
             self.v.writePop(VMW.THAT, 0)
-            self.write_xml()              ## ';'
+            self.forward()              ## ';'
 
         else:
-            self.write_xml()              ## '='
+            self.forward()              ## '='
             self.compileExpression()      ## expression
             self.v.writePop(kind, index)
-            self.write_xml()              ## ';'
+            self.forward()              ## ';'
 
     def compileWhile(self):
-        '''
+        """
         while 文をコンパイルする
         void -> void
-        '''
+        """
         global label_number
 
         label1 = 'WHILE_EXP' + str(label_number)
@@ -342,43 +342,43 @@ class CompilationEngine:
 
         self.v.writeLabel(label1)
 
-        self.write_xml()          ## 'while'
-        self.write_xml()          ## '('
+        self.forward()          ## 'while'
+        self.forward()          ## '('
         self.compileExpression()  ## expression
-        self.write_xml()          ## ')'
+        self.forward()          ## ')'
 
         self.v.writeArithmetic(VMW.NOT)
 
         self.v.writeIf(label2)
 
-        self.write_xml()          ## '{'
+        self.forward()          ## '{'
         self.compileStatements()  ## statements
-        self.write_xml()          ## '}'
+        self.forward()          ## '}'
 
         self.v.writeGoto(label1)
 
         self.v.writeLabel(label2)
 
     def compileReturn(self):
-        '''
+        """
         return 文をコンパイルする
         void -> void
-        '''
-        self.write_xml()              ## 'return'
+        """
+        self.forward()              ## 'return'
         if self.j.token == ';':
             self.v.writePush(VMW.CONST, 0)
         else:
             self.compileExpression()  ## expression
-        self.write_xml()              ## ';'
+        self.forward()              ## ';'
 
         self.v.writeReturn()
 
     def compileIf(self):
-        '''
+        """
         if 文をコンパイルする
         else 文を伴う可能性がある
         void -> void
-        '''
+        """
         global label_number
 
         label1 = 'IF_TRUE' + str(label_number)
@@ -386,27 +386,27 @@ class CompilationEngine:
         label3 = 'IF_END' + str(label_number)
         label_number += 1
 
-        self.write_xml()              ## 'if'
-        self.write_xml()              ## '('
+        self.forward()              ## 'if'
+        self.forward()              ## '('
         self.compileExpression()      ## expression
-        self.write_xml()              ## ')'
+        self.forward()              ## ')'
 
         self.v.writeIf(label1)
         self.v.writeGoto(label2)
         self.v.writeLabel(label1)
 
-        self.write_xml()              ## '{'
+        self.forward()              ## '{'
         self.compileStatements()      ## statements
-        self.write_xml()              ## '}'
+        self.forward()              ## '}'
 
         ## else 節あり
         if self.j.token == 'else':
             self.v.writeGoto(label3)
             self.v.writeLabel(label2)
-            self.write_xml()          ## 'else'
-            self.write_xml()          ## '{'
+            self.forward()          ## 'else'
+            self.forward()          ## '{'
             self.compileStatements()  ## statements
-            self.write_xml()          ## '}'
+            self.forward()          ## '}'
             self.v.writeLabel(label3)
 
         ## else 節なし
@@ -414,10 +414,10 @@ class CompilationEngine:
             self.v.writeLabel(label2)
 
     def compileExpression(self):
-        '''
+        """
         式をコンパイルする
         void -> void
-        '''
+        """
         op_dict = {
             '+': VMW.ADD, '-': VMW.SUB, '*': '', '/': '', '&': VMW.AND,
             '|': VMW.OR, '<': VMW.LT, '>': VMW.GT, '=': VMW.EQ,
@@ -427,7 +427,7 @@ class CompilationEngine:
         self.compileTerm()             ## term
         while self.j.token in op_dict:
             op = self.j.token
-            self.write_xml()           ## op
+            self.forward()           ## op
             self.compileTerm()         ## term
             if op == '*':
                 self.v.writeCall('Math.multiply', 2)
@@ -437,19 +437,19 @@ class CompilationEngine:
                 self.v.writeArithmetic(op_dict[op])
 
     def compileTerm(self):
-        '''
+        """
         term をコンパイルする
         場合によって先読みをする必要がある
         void -> void
-        '''
+        """
         if self.j.token == '(':
-            self.write_xml()          ## '('
+            self.forward()          ## '('
             self.compileExpression()  ## expression
-            self.write_xml()          ## ')'
+            self.forward()          ## ')'
 
         elif self.j.token == '-' or self.j.token == '~':
             op = self.j.token
-            self.write_xml()    ## '-' | '~'
+            self.forward()    ## '-' | '~'
             self.compileTerm()  ## term
             if op == '-':
                 self.v.writeArithmetic(VMW.NEG)
@@ -461,10 +461,10 @@ class CompilationEngine:
             if kind == ST.VAR:
                 kind = VMW.LOCAL
             index = self.s.indexOf(self.j.token)
-            self.write_xml()          ## varName
-            self.write_xml()          ## '['
+            self.forward()          ## varName
+            self.forward()          ## '['
             self.compileExpression()  ## expression
-            self.write_xml()          ## ']'
+            self.forward()          ## ']'
             self.v.writePush(kind, index)
             self.v.writeArithmetic(VMW.ADD)
             self.v.writePop(VMW.POINTER, 1)
@@ -512,13 +512,13 @@ class CompilationEngine:
                     self.v.writePush(VMW.CONST, ord(s))
                     self.v.writeCall('String.appendChar', 2)
 
-            self.write_xml()  ## integerConstant | stringConstant | keywordConstant | varName
+            self.forward()  ## integerConstant | stringConstant | keywordConstant | varName
 
     def compileExpressionList(self):
-        '''
+        """
         コンマで分離された式のリストをコンパイルする
         void -> void
-        '''
+        """
         global expressionList_count
 
         ## 初期化は subroutineCall で ##
@@ -532,15 +532,13 @@ class CompilationEngine:
             self.compileExpression()      ## expression
             while self.j.token == ',':
                 expressionList_count += 1
-                self.write_xml()          ## ','
+                self.forward()          ## ','
                 self.compileExpression()  ## expression
 
-    def write_xml(self):
-        '''
+    def forward(self):
+        """
         次のトークンを読み込む
-        引数が存在する場合、シンボルテーブルへのデータ追加も行う
         void -> void
-        str, str -> void
-        '''
+        """
         if self.j.hasMoreTokens():
             self.j.advance()
