@@ -1,8 +1,6 @@
 #!/usr/bin/python3
 # coding: utf-8
 
-import pprint
-
 import JackTokenizer as JT
 import SymbolTable as ST
 import VMWriter as VMW
@@ -61,20 +59,20 @@ class CompilationEngine:
                     classVarDec_count += 1
                     kind = ST.FIELD
 
-                self.forward()            ## 'static' or 'field'
+                self.forward()     ## 'static' or 'field'
                 type = self.j.token
-                self.forward()            ## type
+                self.forward()     ## type
                 name = self.j.token
                 self.s.define(name, type, kind)
-                self.forward()            ## varName
+                self.forward()     ## varName
                 while self.j.token == ',':
                     if kind == ST.FIELD:
                         classVarDec_count += 1
-                    self.forward()        ## ','
+                    self.forward()  ## ','
                     name = self.j.token
                     self.s.define(name, type, kind)
-                    self.forward()        ## varName
-                self.forward()            ## ';'
+                    self.forward()  ## varName
+                self.forward()      ## ';'
 
     def compileSubroutine(self):
         """
@@ -101,77 +99,21 @@ class CompilationEngine:
 
                 self.s.startSubroutine()
                 dec = self.j.token
-
-                # if self.j.token == 'constructor':
-                #     self.forward()             ## 'constructor'
-                #     self.forward()             ## 'void' | type
-                #     subroutine_name = self.class_name + '.' + self.j.token
-                #     self.forward()             ## subroutineName
-                #     self.forward()             ## '('
-                #     self.compileParameterList()  ## parameterList
-                #     self.forward()             ## ')'
-                #     # subroutineBody
-                #     self.forward()          ## '{'
-                #     self.compileVarDec()      ## varDec*
-                #     self.v.writeFunction(subroutine_name, varDec_count)
-                #     self.v.writePush(VMW.CONST, classVarDec_count)
-                #     self.v.writeCall('Memory.alloc', 1)
-                #     self.v.writePop(VMW.POINTER, 0)
-                #     self.compileStatements()  ## statements
-                #     self.forward()          ## '}'
-
-                # elif self.j.token == 'function':
-                #     self.forward()             ## 'function'
-                #     self.forward()             ## 'void' | type
-                #     subroutine_name = self.class_name + '.' + self.j.token
-                #     self.forward()             ## subroutineName
-                #     self.forward()             ## '('
-                #     self.compileParameterList()  ## parameterList
-                #     self.forward()             ## ')'
-                #     # subroutineBody
-                #     self.forward()          ## '{'
-                #     self.compileVarDec()      ## varDec*
-                #     self.v.writeFunction(subroutine_name, varDec_count)
-                #     self.compileStatements()  ## statements
-                #     self.forward()          ## '}'
-
-                # elif self.j.token == 'method':
-                #     self.s.define('this', self.class_name, ST.ARG)
-                #     self.forward()             ## 'method'
-                #     self.forward()             ## 'void' | type
-                #     subroutine_name = self.class_name + '.' + self.j.token
-                #     self.forward()             ## subroutineName
-                #     self.forward()             ## '('
-                #     self.compileParameterList()  ## parameterList
-                #     self.forward()             ## ')'
-                #     # subroutineBody
-                #     self.forward()          ## '{'
-                #     self.compileVarDec()      ## varDec*
-
-                #     self.v.writeFunction(subroutine_name, varDec_count)
-                #     self.v.writePush(VMW.ARG, 0)
-                #     self.v.writePop(VMW.POINTER, 0)
-
-                #     self.compileStatements()  ## statements
-                #     self.forward()          ## '}'
-
-
-
-
                 if dec == 'method':
                     self.s.define('this', self.class_name, ST.ARG)
-                self.forward()         ## 'constructor' | 'function' | 'method'
-                self.forward()            ## 'void' | type
-                subroutine_name = self.class_name + '.' + self.j.token
-                self.forward()             ## subroutineName
-                self.forward()             ## '('
-                self.compileParameterList()  ## parameterList
-                self.forward()             ## ')'
-                # subroutineBody
-                self.forward()          ## '{'
-                self.compileVarDec()      ## varDec*
-                self.v.writeFunction(subroutine_name, varDec_count)
 
+                self.forward()               ## 'constructor' | 'function' | 'method'
+                self.forward()               ## 'void' | type
+                subroutine_name = self.class_name + '.' + self.j.token
+                self.forward()               ## subroutineName
+                self.forward()               ## '('
+                self.compileParameterList()  ## parameterList
+                self.forward()               ## ')'
+
+                # subroutineBody
+                self.forward()               ## '{'
+                self.compileVarDec()         ## varDec*
+                self.v.writeFunction(subroutine_name, varDec_count)
                 if dec == 'constructor':
                     self.v.writePush(VMW.CONST, classVarDec_count)
                     self.v.writeCall('Memory.alloc', 1)
@@ -179,13 +121,8 @@ class CompilationEngine:
                 elif dec == 'method':
                     self.v.writePush(VMW.ARG, 0)
                     self.v.writePop(VMW.POINTER, 0)
-
-                self.compileStatements()  ## statements
-                self.forward()          ## '}'
-
-
-
-                pprint.pprint(self.s.tables[0])
+                self.compileStatements()     ## statements
+                self.forward()               ## '}'
 
         # subroutineCall
         elif self.j.token_list[0] in {'(', '.'}:
@@ -193,7 +130,6 @@ class CompilationEngine:
             expressionList_count = 0
 
             if self.j.token_list[0] == '(':
-                # p.257 の手法
                 expressionList_count += 1
                 type = self.class_name
                 subroutine_name = type + '.'
@@ -203,29 +139,9 @@ class CompilationEngine:
             elif self.j.token_list[0] == '.':
                 kind = self.s.kindOf(self.j.token)
 
-                # if self.s.kindOf(self.j.token) == ST.NONE:
-                #     subroutine_name = self.j.token
-                # elif self.s.kindOf(self.j.token) == ST.VAR:
-                #     # p.257 の手法
-                #     expressionList_count += 1
-                #     type = self.s.typeOf(self.j.token)
-                #     subroutine_name = type
-                #     index = self.s.indexOf(self.j.token)
-                #     self.v.writePush(VMW.LOCAL, index)
-                # elif self.s.kindOf(self.j.token) == ST.FIELD:
-                #     # p.257 の手法
-                #     expressionList_count += 1
-                #     type = self.s.typeOf(self.j.token)
-                #     subroutine_name = type
-                #     index = self.s.indexOf(self.j.token)
-                #     self.v.writePush(VMW.THIS, index)
-
-
-
                 if kind == ST.NONE:
                     subroutine_name = self.j.token
                 elif kind in {ST.VAR, ST.FIELD}:
-                    # p.257 の手法
                     expressionList_count += 1
                     type = self.s.typeOf(self.j.token)
                     subroutine_name = type
@@ -235,19 +151,15 @@ class CompilationEngine:
                     elif kind == ST.FIELD:
                         self.v.writePush(VMW.THIS, index)
 
-
-
-
-                self.forward()          ## className | varName
+                self.forward()            ## className | varName
                 subroutine_name += self.j.token
-                self.forward()          ## '.'
+                self.forward()            ## '.'
 
             subroutine_name += self.j.token
-            self.forward()              ## subroutineName
-            self.forward()              ## '('
+            self.forward()                ## subroutineName
+            self.forward()                ## '('
             self.compileExpressionList()  ## expressionList
-            self.forward()              ## ')'
-
+            self.forward()                ## ')'
             self.v.writeCall(subroutine_name, expressionList_count)
 
     def compileParameterList(self):
@@ -266,18 +178,18 @@ class CompilationEngine:
         else:
             parameterList_count += 1
             type = self.j.token
-            self.forward()            ## type
+            self.forward()      ## type
             name = self.j.token
             self.s.define(name, type, ST.ARG)
-            self.forward()            ## varName
+            self.forward()      ## varName
             while self.j.token == ',':
                 parameterList_count += 1
-                self.forward()        ## ','
+                self.forward()  ## ','
                 type = self.j.token
-                self.forward()        ## type
+                self.forward()  ## type
                 name = self.j.token
                 self.s.define(name, type, ST.ARG)
-                self.forward()        ## varName
+                self.forward()  ## varName
 
     def compileVarDec(self):
         """
@@ -294,17 +206,17 @@ class CompilationEngine:
             while self.j.token == 'var':
                 varDec_count += 1
                 kind = ST.VAR
-                self.forward()            ## 'var'
+                self.forward()      ## 'var'
                 type = self.j.token
-                self.forward()            ## type
+                self.forward()      ## type
                 self.s.define(self.j.token, type, ST.VAR)
-                self.forward()            ## varName
+                self.forward()      ## varName
                 while self.j.token == ',':
                     varDec_count += 1
-                    self.forward()        ## ','
+                    self.forward()  ## ','
                     self.s.define(self.j.token, type, ST.VAR)
-                    self.forward()        ## varName
-                self.forward()            ## ';'
+                    self.forward()  ## varName
+                self.forward()      ## ';'
 
     def compileStatements(self):
         """
@@ -333,17 +245,17 @@ class CompilationEngine:
         do 文をコンパイルする
         void -> void
         """
-        self.forward()          ## 'do'
+        self.forward()            ## 'do'
         self.compileSubroutine()  ## subroutineCall
         self.v.writePop(VMW.TEMP, 0)
-        self.forward()          ## ';'
+        self.forward()            ## ';'
 
     def compileLet(self):
         """
         let 文をコンパイルする
         void -> void
         """
-        self.forward()              ## 'let'
+        self.forward()                ## 'let'
 
         name = self.j.token
         kind = self.s.kindOf(name)
@@ -358,27 +270,27 @@ class CompilationEngine:
         else:
             kind = VMW.ARG
 
-        self.forward()              ## varName
+        self.forward()                ## varName
 
         if self.j.token == '[':
-            self.forward()          ## '['
+            self.forward()            ## '['
             self.compileExpression()  ## expression
-            self.forward()          ## ']'
+            self.forward()            ## ']'
             self.v.writePush(kind, index)
             self.v.writeArithmetic(VMW.ADD)
-            self.forward()              ## '='
-            self.compileExpression()      ## expression
+            self.forward()            ## '='
+            self.compileExpression()  ## expression
             self.v.writePop(VMW.TEMP, 0)
             self.v.writePop(VMW.POINTER, 1)
             self.v.writePush(VMW.TEMP, 0)
             self.v.writePop(VMW.THAT, 0)
-            self.forward()              ## ';'
+            self.forward()            ## ';'
 
         else:
-            self.forward()              ## '='
-            self.compileExpression()      ## expression
+            self.forward()            ## '='
+            self.compileExpression()  ## expression
             self.v.writePop(kind, index)
-            self.forward()              ## ';'
+            self.forward()            ## ';'
 
     def compileWhile(self):
         """
@@ -392,22 +304,16 @@ class CompilationEngine:
         label_number += 1
 
         self.v.writeLabel(label1)
-
-        self.forward()          ## 'while'
-        self.forward()          ## '('
+        self.forward()            ## 'while'
+        self.forward()            ## '('
         self.compileExpression()  ## expression
-        self.forward()          ## ')'
-
+        self.forward()            ## ')'
         self.v.writeArithmetic(VMW.NOT)
-
         self.v.writeIf(label2)
-
-        self.forward()          ## '{'
+        self.forward()            ## '{'
         self.compileStatements()  ## statements
-        self.forward()          ## '}'
-
+        self.forward()            ## '}'
         self.v.writeGoto(label1)
-
         self.v.writeLabel(label2)
 
     def compileReturn(self):
@@ -415,13 +321,12 @@ class CompilationEngine:
         return 文をコンパイルする
         void -> void
         """
-        self.forward()              ## 'return'
+        self.forward()                ## 'return'
         if self.j.token == ';':
             self.v.writePush(VMW.CONST, 0)
         else:
             self.compileExpression()  ## expression
-        self.forward()              ## ';'
-
+        self.forward()                ## ';'
         self.v.writeReturn()
 
     def compileIf(self):
@@ -432,33 +337,32 @@ class CompilationEngine:
         """
         global label_number
 
-
         label1 = 'IF_TRUE' + str(label_number)
         label2 = 'IF_FALSE' + str(label_number)
         label3 = 'IF_END' + str(label_number)
         label_number += 1
 
-        self.forward()              ## 'if'
-        self.forward()              ## '('
+        self.forward()                ## 'if'
+        self.forward()                ## '('
         self.compileExpression()      ## expression
-        self.forward()              ## ')'
+        self.forward()                ## ')'
 
         self.v.writeIf(label1)
         self.v.writeGoto(label2)
         self.v.writeLabel(label1)
 
-        self.forward()              ## '{'
+        self.forward()                ## '{'
         self.compileStatements()      ## statements
-        self.forward()              ## '}'
+        self.forward()                ## '}'
 
         ## else 節あり
         if self.j.token == 'else':
             self.v.writeGoto(label3)
             self.v.writeLabel(label2)
-            self.forward()          ## 'else'
-            self.forward()          ## '{'
+            self.forward()            ## 'else'
+            self.forward()            ## '{'
             self.compileStatements()  ## statements
-            self.forward()          ## '}'
+            self.forward()            ## '}'
             self.v.writeLabel(label3)
 
         ## else 節なし
@@ -476,11 +380,11 @@ class CompilationEngine:
         }
         op = ''
 
-        self.compileTerm()             ## term
+        self.compileTerm()      ## term
         while self.j.token in op_dict:
             op = self.j.token
-            self.forward()           ## op
-            self.compileTerm()         ## term
+            self.forward()      ## op
+            self.compileTerm()  ## term
             if op == '*':
                 self.v.writeCall('Math.multiply', 2)
             elif op == '/':
@@ -495,14 +399,14 @@ class CompilationEngine:
         void -> void
         """
         if self.j.token == '(':
-            self.forward()          ## '('
+            self.forward()            ## '('
             self.compileExpression()  ## expression
-            self.forward()          ## ')'
+            self.forward()            ## ')'
 
         elif self.j.token == '-' or self.j.token == '~':
             op = self.j.token
-            self.forward()    ## '-' | '~'
-            self.compileTerm()  ## term
+            self.forward()            ## '-' | '~'
+            self.compileTerm()        ## term
             if op == '-':
                 self.v.writeArithmetic(VMW.NEG)
             elif op == '~':
@@ -513,10 +417,10 @@ class CompilationEngine:
             if kind == ST.VAR:
                 kind = VMW.LOCAL
             index = self.s.indexOf(self.j.token)
-            self.forward()          ## varName
-            self.forward()          ## '['
+            self.forward()            ## varName
+            self.forward()            ## '['
             self.compileExpression()  ## expression
-            self.forward()          ## ']'
+            self.forward()            ## ']'
             self.v.writePush(kind, index)
             self.v.writeArithmetic(VMW.ADD)
             self.v.writePop(VMW.POINTER, 1)
@@ -581,7 +485,7 @@ class CompilationEngine:
             self.compileExpression()      ## expression
             while self.j.token == ',':
                 expressionList_count += 1
-                self.forward()          ## ','
+                self.forward()            ## ','
                 self.compileExpression()  ## expression
 
     def forward(self):
