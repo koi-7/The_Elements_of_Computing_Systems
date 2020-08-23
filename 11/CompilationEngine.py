@@ -15,9 +15,6 @@ parameterList_count = 0
 varDec_count = 0
 expressionList_count = 0
 
-keyword_constant_set = {'true', 'false', 'null', 'this'}
-
-
 class CompilationEngine:
     def __init__(self, input_file, output_file):
         """
@@ -36,13 +33,13 @@ class CompilationEngine:
         クラスをコンパイルする
         void -> void
         """
-        self.forward()           ## 'class'
+        self.forward()             ## 'class'
         self.class_name = self.j.token
-        self.forward()           ## className
-        self.forward()           ## '{'
+        self.forward()             ## className
+        self.forward()             ## '{'
         self.compileClassVarDec()  ## classVarDec*
         self.compileSubroutine()   ## subroutineDec*
-        self.forward()           ## '}'
+        self.forward()             ## '}'
 
     def compileClassVarDec(self):
         """
@@ -52,27 +49,30 @@ class CompilationEngine:
         global classVarDec_count
 
         # classVarDec 0個
-        if self.j.token != 'static' and self.j.token != 'field':
+        if not self.j.token in {'static', 'field'}:
             pass
 
         # classVarDec 1個以上
         else:
-            while self.j.token == 'static' or self.j.token == 'field':
+            while self.j.token in {'static', 'field'}:
                 if self.j.token == 'static':
                     kind = ST.STATIC
                 elif self.j.token == 'field':
                     classVarDec_count += 1
                     kind = ST.FIELD
+
                 self.forward()            ## 'static' or 'field'
                 type = self.j.token
                 self.forward()            ## type
-                self.s.define(self.j.token, type, kind)
+                name = self.j.token
+                self.s.define(name, type, kind)
                 self.forward()            ## varName
                 while self.j.token == ',':
                     if kind == ST.FIELD:
                         classVarDec_count += 1
                     self.forward()        ## ','
-                    self.s.define(self.j.token, type, kind)
+                    name = self.j.token
+                    self.s.define(name, type, kind)
                     self.forward()        ## varName
                 self.forward()            ## ';'
 
@@ -92,71 +92,103 @@ class CompilationEngine:
             pass
 
         ## subroutineDec あり
-        elif self.j.token == 'constructor' or self.j.token == 'function' or self.j.token == 'method':
-            while self.j.token == 'constructor' or self.j.token == 'function' or self.j.token == 'method':
+        elif self.j.token in {'constructor', 'function', 'method'}:
+            while self.j.token in {'constructor', 'function', 'method'}:
                 subroutine_name = ''
                 parameterList_count = 0
                 varDec_count = 0
+                dec = ''
 
                 self.s.startSubroutine()
+                dec = self.j.token
 
-                if self.j.token == 'constructor':
-                    self.forward()             ## 'constructor'
-                    self.forward()             ## 'void' | type
-                    subroutine_name = self.class_name + '.' + self.j.token
-                    self.forward()             ## subroutineName
-                    self.forward()             ## '('
-                    self.compileParameterList()  ## parameterList
-                    self.forward()             ## ')'
-                    # subroutineBody
-                    self.forward()          ## '{'
-                    self.compileVarDec()      ## varDec*
-                    self.v.writeFunction(subroutine_name, varDec_count)
+                # if self.j.token == 'constructor':
+                #     self.forward()             ## 'constructor'
+                #     self.forward()             ## 'void' | type
+                #     subroutine_name = self.class_name + '.' + self.j.token
+                #     self.forward()             ## subroutineName
+                #     self.forward()             ## '('
+                #     self.compileParameterList()  ## parameterList
+                #     self.forward()             ## ')'
+                #     # subroutineBody
+                #     self.forward()          ## '{'
+                #     self.compileVarDec()      ## varDec*
+                #     self.v.writeFunction(subroutine_name, varDec_count)
+                #     self.v.writePush(VMW.CONST, classVarDec_count)
+                #     self.v.writeCall('Memory.alloc', 1)
+                #     self.v.writePop(VMW.POINTER, 0)
+                #     self.compileStatements()  ## statements
+                #     self.forward()          ## '}'
+
+                # elif self.j.token == 'function':
+                #     self.forward()             ## 'function'
+                #     self.forward()             ## 'void' | type
+                #     subroutine_name = self.class_name + '.' + self.j.token
+                #     self.forward()             ## subroutineName
+                #     self.forward()             ## '('
+                #     self.compileParameterList()  ## parameterList
+                #     self.forward()             ## ')'
+                #     # subroutineBody
+                #     self.forward()          ## '{'
+                #     self.compileVarDec()      ## varDec*
+                #     self.v.writeFunction(subroutine_name, varDec_count)
+                #     self.compileStatements()  ## statements
+                #     self.forward()          ## '}'
+
+                # elif self.j.token == 'method':
+                #     self.s.define('this', self.class_name, ST.ARG)
+                #     self.forward()             ## 'method'
+                #     self.forward()             ## 'void' | type
+                #     subroutine_name = self.class_name + '.' + self.j.token
+                #     self.forward()             ## subroutineName
+                #     self.forward()             ## '('
+                #     self.compileParameterList()  ## parameterList
+                #     self.forward()             ## ')'
+                #     # subroutineBody
+                #     self.forward()          ## '{'
+                #     self.compileVarDec()      ## varDec*
+
+                #     self.v.writeFunction(subroutine_name, varDec_count)
+                #     self.v.writePush(VMW.ARG, 0)
+                #     self.v.writePop(VMW.POINTER, 0)
+
+                #     self.compileStatements()  ## statements
+                #     self.forward()          ## '}'
+
+
+
+
+                if dec == 'method':
+                    self.s.define('this', self.class_name, ST.ARG)
+                self.forward()         ## 'constructor' | 'function' | 'method'
+                self.forward()            ## 'void' | type
+                subroutine_name = self.class_name + '.' + self.j.token
+                self.forward()             ## subroutineName
+                self.forward()             ## '('
+                self.compileParameterList()  ## parameterList
+                self.forward()             ## ')'
+                # subroutineBody
+                self.forward()          ## '{'
+                self.compileVarDec()      ## varDec*
+                self.v.writeFunction(subroutine_name, varDec_count)
+
+                if dec == 'constructor':
                     self.v.writePush(VMW.CONST, classVarDec_count)
                     self.v.writeCall('Memory.alloc', 1)
                     self.v.writePop(VMW.POINTER, 0)
-                    self.compileStatements()  ## statements
-                    self.forward()          ## '}'
-
-                elif self.j.token == 'function':
-                    self.forward()             ## 'function'
-                    self.forward()             ## 'void' | type
-                    subroutine_name = self.class_name + '.' + self.j.token
-                    self.forward()             ## subroutineName
-                    self.forward()             ## '('
-                    self.compileParameterList()  ## parameterList
-                    self.forward()             ## ')'
-                    # subroutineBody
-                    self.forward()          ## '{'
-                    self.compileVarDec()      ## varDec*
-                    self.v.writeFunction(subroutine_name, varDec_count)
-                    self.compileStatements()  ## statements
-                    self.forward()          ## '}'
-
-                elif self.j.token == 'method':
-                    self.s.define('this', self.class_name, ST.ARG)
-                    self.forward()             ## 'method'
-                    self.forward()             ## 'void' | type
-                    subroutine_name = self.class_name + '.' + self.j.token
-                    self.forward()             ## subroutineName
-                    self.forward()             ## '('
-                    self.compileParameterList()  ## parameterList
-                    self.forward()             ## ')'
-                    # subroutineBody
-                    self.forward()          ## '{'
-                    self.compileVarDec()      ## varDec*
-
-                    self.v.writeFunction(subroutine_name, varDec_count)
+                elif dec == 'method':
                     self.v.writePush(VMW.ARG, 0)
                     self.v.writePop(VMW.POINTER, 0)
 
-                    self.compileStatements()  ## statements
-                    self.forward()          ## '}'
+                self.compileStatements()  ## statements
+                self.forward()          ## '}'
+
+
 
                 pprint.pprint(self.s.tables[0])
 
         # subroutineCall
-        elif self.j.token_list[0] == '(' or self.j.token_list[0] == '.':
+        elif self.j.token_list[0] in {'(', '.'}:
             subroutine_name = ''
             expressionList_count = 0
 
@@ -167,23 +199,44 @@ class CompilationEngine:
                 subroutine_name = type + '.'
                 index = 0
                 self.v.writePush(VMW.POINTER, index)
+
             elif self.j.token_list[0] == '.':
-                if self.s.kindOf(self.j.token) == ST.NONE:
+                kind = self.s.kindOf(self.j.token)
+
+                # if self.s.kindOf(self.j.token) == ST.NONE:
+                #     subroutine_name = self.j.token
+                # elif self.s.kindOf(self.j.token) == ST.VAR:
+                #     # p.257 の手法
+                #     expressionList_count += 1
+                #     type = self.s.typeOf(self.j.token)
+                #     subroutine_name = type
+                #     index = self.s.indexOf(self.j.token)
+                #     self.v.writePush(VMW.LOCAL, index)
+                # elif self.s.kindOf(self.j.token) == ST.FIELD:
+                #     # p.257 の手法
+                #     expressionList_count += 1
+                #     type = self.s.typeOf(self.j.token)
+                #     subroutine_name = type
+                #     index = self.s.indexOf(self.j.token)
+                #     self.v.writePush(VMW.THIS, index)
+
+
+
+                if kind == ST.NONE:
                     subroutine_name = self.j.token
-                elif self.s.kindOf(self.j.token) == ST.VAR:
+                elif kind in {ST.VAR, ST.FIELD}:
                     # p.257 の手法
                     expressionList_count += 1
                     type = self.s.typeOf(self.j.token)
                     subroutine_name = type
                     index = self.s.indexOf(self.j.token)
-                    self.v.writePush(VMW.LOCAL, index)
-                elif self.s.kindOf(self.j.token) == ST.FIELD:
-                    # p.257 の手法
-                    expressionList_count += 1
-                    type = self.s.typeOf(self.j.token)
-                    subroutine_name = type
-                    index = self.s.indexOf(self.j.token)
-                    self.v.writePush(VMW.THIS, index)
+                    if kind == ST.VAR:
+                        self.v.writePush(VMW.LOCAL, index)
+                    elif kind == ST.FIELD:
+                        self.v.writePush(VMW.THIS, index)
+
+
+
 
                 self.forward()          ## className | varName
                 subroutine_name += self.j.token
@@ -196,7 +249,6 @@ class CompilationEngine:
             self.forward()              ## ')'
 
             self.v.writeCall(subroutine_name, expressionList_count)
-            #self.v.writePop(VMW.TEMP, 0)
 
     def compileParameterList(self):
         """
@@ -205,7 +257,6 @@ class CompilationEngine:
         void -> void
         """
         global parameterList_count
-        #parameterList_count = 0
 
         # 引数なし
         if self.j.token == ')':
@@ -381,6 +432,7 @@ class CompilationEngine:
         """
         global label_number
 
+
         label1 = 'IF_TRUE' + str(label_number)
         label2 = 'IF_FALSE' + str(label_number)
         label3 = 'IF_END' + str(label_number)
@@ -479,7 +531,7 @@ class CompilationEngine:
                 self.v.writePush(VMW.CONST, self.j.token)
 
             ## keywordConstant
-            elif self.j.token in keyword_constant_set:
+            elif self.j.token in {'true', 'false', 'null', 'this'}:
                 if self.j.token == 'true':
                     self.v.writePush(VMW.CONST, 0)
                     self.v.writeArithmetic(VMW.NOT)
@@ -520,9 +572,6 @@ class CompilationEngine:
         void -> void
         """
         global expressionList_count
-
-        ## 初期化は subroutineCall で ##
-        # expressionList_count = 0
 
         if self.j.token == ')':
             pass
