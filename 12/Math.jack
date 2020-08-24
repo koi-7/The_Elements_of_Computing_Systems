@@ -25,6 +25,15 @@ class Math {
             let i = i + 1;
         }
 
+        //let i = 14;
+        //do Output.printString("aaaaa");
+        //while (i > -1) {
+        //    do Output.printInt(twoToThe[i]);
+        //    do Output.printString(" ");
+        //    let i = i - 1;
+        //}
+        //do Output.printString("aaaaa");
+
         return;
     }
 
@@ -54,7 +63,7 @@ class Math {
             let shiftedX = x;
             let j = 0;
 
-            while (j < 15) {
+            while (j < 16) {
                 if (Math.bit(y, j)) {
                     let sum = sum + shiftedX;
                 }
@@ -97,23 +106,14 @@ class Math {
         }
     }
 
-    /** 整数 x の j 番目のビットが 1 であれば true を返し、
+    /** 整数 x の j（j = 0..15）番目のビットが 1 であれば true を返し、
      *  それ以外は false を返す。
      */
     function boolean bit(int x, int j) {
-        var int i;
-        var int num;
-
-        let num = x;
-        let i = 15;
-
-        while (i > j) {
-            if (num > twoToThe[i]) {
-                let num = num - twoToThe[i];
-            }
-            let i = i - 1;
+        if ((x & twoToThe[j]) = 0) {
+            return false;
+        } else {
+            return true;
         }
-
-        return num > twoToThe[i];
     }
 }
