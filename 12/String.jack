@@ -18,6 +18,9 @@ class String {
     /** constructs a new empty string with a maximum length of maxLength
      *  and initial length of 0. */
     constructor String new(int maxLength) {
+        if (maxLength = 0) {
+            let maxLength = 1;
+        }
         let string = Array.new(maxLength);
         let len = 0;
         return this;
@@ -26,7 +29,6 @@ class String {
     /** Disposes this string. */
     method void dispose() {
         do string.dispose();
-        do Memory.dealloc(this);
         return;
     }
 
@@ -55,7 +57,7 @@ class String {
 
     /** Erases the last character from this string. */
     method void eraseLastChar() {
-        let len = len - 1
+        let len = len - 1;
         return;
     }
 
@@ -63,31 +65,58 @@ class String {
      *  until a non-digit character is detected. */
     method int intValue() {
         var int v, i, d;
+        var boolean neg;
 
         let v = 0;
         let i = 0;
 
-        while (i < len) {
-            let d = string[i] - 48;
-            let v = Math.multiply(v, 10) + d
+        let neg = false;
+        if (string[0] = 45) {
+            let neg = true;
             let i = i + 1;
         }
-        return v;
+
+        while (i < len) {
+            let d = string[i] - 48;
+            let v = v * 10 + d;
+            let i = i + 1;
+        }
+
+        if (neg) {
+            return -v;
+        } else {
+            return v;
+        }
     }
 
     /** Sets this string to hold a representation of the given value. */
     method void setInt(int val) {
-        var int lastDigit;
-        var char c;
+        let len = 0;
 
-        let lastDigit = val - Math.multiply(Math.divide(val, 10), 10);
+        if (val < 0) {
+            do appendChar(45);
+            let val = -val;
+        }
+
+        do int2String(val);
+
+        return;
+    }
+
+    /** 自然数を文字列に変換する */
+    method void int2String(int n) {
+        var int lastDigit, c;
+        let lastDigit = n - ((n / 10) * 10);
         let c = lastDigit + 48;
 
-        if (val < 10) {
-            return c;
+        if (n < 10) {
+            do appendChar(c);
         } else {
-            return String.setInt(Math.divide(val, 10)).append(c);
+            do int2String(n / 10);
+            do appendChar(c);
         }
+
+        return;
     }
 
     /** Returns the new line character. */
