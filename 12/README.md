@@ -25,3 +25,13 @@
 ### printChar
 
 先に記した "A" 画像の i 行の数値は map[i] として取得できるので、j ビット目の色を判断するには Math クラスで定義した Math.bit 関数を呼び出すとよい（先人の知恵）。
+
+## Keyboard
+
+### readChar
+
+のちに readLine、readInt のどちらの関数でも使われるので readChar がしっかり動作しないとこれらもうまく動作しない。図12-14（p.296）のアルゴリズム通りの実装ではキーが連続で入力されるので適当に Sys.wait を用いて調整する。
+
+### readLine、readInt
+
+readLine が実装できれば readInt もほとんど同じように実装できる。String から int への変換には String.intValue を用いればよい。
