@@ -19,6 +19,7 @@ class Output {
     // Character map for displaying characters
     static Array charMaps;
     static int cursor_x, cursor_y;
+    static boolean called_from_moveCursor;
 
     /** Initializes the screen, and locates the cursor at the screen's top-left. */
     function void init() {
@@ -181,10 +182,13 @@ class Output {
     /** Moves the cursor to the j-th column of the i-th row,
      *  and erases the character displayed there. */
     function void moveCursor(int i, int j) {
-        let cursor_x = i * 11;
-        let cursor_y = j * 8;
-        //do Output.printChar(32);
-        //let cursor_y = cursor_y - 8;
+        let cursor_x = i;  // 0 <= cursor_x <= 22
+        let cursor_y = j;  // 0 <= cursor_y <= 63
+
+        let called_from_moveCursor = true;
+        do Output.printChar(32);
+        let called_from_moveCursor = false;
+
         return;
     }
 
@@ -192,28 +196,13 @@ class Output {
      *  and advances the cursor one column forward. */
     function void printChar(char c) {
         var int i, j;
-        var int next_cursor_x, next_cursor_y;
+        var int pix_x, pix_y;
         var Array map;
         var boolean bit;
 
-        if ((cursor_x = 22 * 11) & (cursor_y = 63 * 8)) {
-            let next_cursor_x = 0;
-            let next_cursor_y = 0;
-        } else {
-            if (cursor_y = 63 * 8) {
-                let next_cursor_x = cursor_x + 11;
-                let next_cursor_y = 0;
-            } else {
-                let next_cursor_x = cursor_x;
-                let next_cursor_y = cursor_y + 8;
-            }
-        }
-        if (c = 32) {
-            let next_cursor_x = cursor_x;
-            let next_cursor_y = cursor_y;
-        }
-
         let map = Output.getMap(c);
+        let pix_x = 11 * cursor_x;
+        let pix_y = 8 * cursor_y;
 
         let i = 0;
         while (i < 11) {
@@ -221,19 +210,33 @@ class Output {
             while (j < 8) {
                 let bit = Math.bit(map[i], j);
                 if (bit) {
-                    do Screen.drawPixel(cursor_y, cursor_x);
+                    do Screen.setColor(true);   // 黒
+                } else {
+                    do Screen.setColor(false);  // 白
                 }
-                let cursor_y = cursor_y + 1;
+                do Screen.drawPixel(pix_y, pix_x);
+
+                let pix_y = pix_y + 1;
                 let j = j + 1;
             }
-            let cursor_x = cursor_x + 1;
-            let cursor_y = cursor_y - 8;
 
+            let pix_x = pix_x + 1;
+            let pix_y = pix_y - 8;
             let i = i + 1;
         }
 
-        let cursor_x = next_cursor_x;
-        let cursor_y = next_cursor_y;
+        if (~(called_from_moveCursor)) {
+            let cursor_y = cursor_y + 1;
+            if (cursor_y = 64) {
+                let cursor_y = 0;
+                if (cursor_x = 22) {
+                    let cursor_x = 0;
+                } else {
+                    let cursor_x = cursor_x + 1;
+                }
+            }
+        }
+
         return;
     }
 
@@ -268,20 +271,19 @@ class Output {
 
     /** Advances the cursor to the beginning of the next line. */
     function void println() {
-        if (cursor_x = 22 * 11) {
+        let cursor_y = 0;
+        if (cursor_x = 22) {
             let cursor_x = 0;
         } else {
-            let cursor_x = cursor_x + 11;
+            let cursor_x = cursor_x + 1;
         }
-        let cursor_y = 0;
 
         return;
     }
 
     /** Moves the cursor one column back. */
     function void backSpace() {
-        let cursor_y = cursor_y - 8;
-        do Output.printChar(32);
+        let cursor_y = cursor_y - 1;
         return;
     }
 }
