@@ -10,8 +10,23 @@
  */
 class Memory {
 
+    static Array freeList;
+    static int heapBase;
+    static int heapLength;
+    static int length;
+    static int next;
+
     /** Initializes the class. */
     function void init() {
+        let heapBase = 2048;
+        let heapLength = 16383 - heapBase;
+        let length = 0;
+        let next = 1;
+
+        let freeList = heapBase;
+        let freeList[length] = heapLength;
+        let freeList[next] = null;
+
         return;
     }
 
@@ -37,12 +52,38 @@ class Memory {
     /** Finds an available RAM block of the given size and returns
      *  a reference to its base address. */
     function int alloc(int size) {
-        return 0;
+        var Array current_block, previous_block, block;
+
+        let current_block = freeList;
+        let previous_block = current_block;
+
+        while (current_block[length] < (size + 2)) {
+            let previous_block = current_block;
+            let current_block = current_block[next];
+            if (current_block = null) {
+                return -1;  // 失敗
+            }
+        }
+
+        let block = current_block[3];
+        let previous_block[next] = current_block[next];
+
+        let block[-1] = size + 1;
+
+        return block;
     }
 
     /** De-allocates the given object (cast as an array) by making
      *  it available for future allocations. */
     function void deAlloc(Array o) {
+        var Array segment;
+
+        let segment = o - 1;
+        let segment[0] = o[-1];
+
+        let segment[next] = freeList[next];
+        let freeList[next] = segment;
+
         return;
     }
 }
