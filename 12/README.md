@@ -50,10 +50,6 @@ current_pointer の length を見ながら size より大きい空き空間が�
 
 ![](https://user-images.githubusercontent.com/61448492/91388371-200f2280-e872-11ea-89ee-56bc45786333.png)
 
-freeList の一番最後の要素をブロックにした場合、(size + 1) 分の領域のみを切り出し、余った部分を freeList につなげる。
-
-![](https://user-images.githubusercontent.com/61448492/91388420-3b7a2d80-e872-11ea-8c4c-3805cd58e586.png)
-
 ### deAlloc
 
 解放した領域は freeList の先頭にもってくる。
