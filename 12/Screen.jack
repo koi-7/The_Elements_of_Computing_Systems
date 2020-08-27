@@ -48,7 +48,7 @@ class Screen {
     function void drawPixel(int x, int y) {
         var int address, loop, i, value;
 
-        let address = 16384 + (32 * y) + (x / 16);
+        let address = 16384 + (y * 32) + (x / 16);
 
         let loop = x - ((x / 16) * 16);
         let value = 1;
