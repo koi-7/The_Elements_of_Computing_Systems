@@ -52,7 +52,9 @@ current_pointer の length を見ながら size より大きい空き空間が�
 
 ### deAlloc
 
-解放した領域は freeList の先頭にもってくる。
+解放した領域は freeList の末尾につなげるより先頭にもってくる方が楽。
+
+![](https://user-images.githubusercontent.com/61448492/91414674-dcbfae80-e887-11ea-87ef-5eb80f7e42aa.png)
 
 ## Sys
 
