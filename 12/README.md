@@ -53,3 +53,9 @@ current_pointer の length を見ながら size より大きい空き空間が�
 ### deAlloc
 
 解放した領域は freeList の先頭にもってくる。
+
+## Sys
+
+### init
+
+各 OS クラスの init ファンクションを呼び出す順番に注意。
