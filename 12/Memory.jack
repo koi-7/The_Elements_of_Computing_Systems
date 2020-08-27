@@ -10,6 +10,8 @@
  */
 class Memory {
 
+    static Array memory;
+
     static Array freeList;
     static int heapBase;
     static int heapLength;
@@ -18,6 +20,8 @@ class Memory {
 
     /** Initializes the class. */
     function void init() {
+        let memory = 0;
+
         let heapBase = 2048;
         let heapLength = 16383 - heapBase;
         let length = 0;
@@ -32,41 +36,35 @@ class Memory {
 
     /** Returns the RAM value at the given address. */
     function int peek(int address) {
-        var Array memory;
-
-        let memory = 0;
-
         return memory[address];
     }
 
     /** Sets the RAM value at the given address to the given value. */
     function void poke(int address, int value) {
-        var Array memory;
-
-        let memory = 0;
         let memory[address] = value;
-
         return;
     }
 
     /** Finds an available RAM block of the given size and returns
      *  a reference to its base address. */
     function int alloc(int size) {
-        var Array current_block, previous_block, block;
+        var Array current_pointer, previous_pointer, block;
 
-        let current_block = freeList;
-        let previous_block = current_block;
+        let current_pointer = freeList;
+        let previous_pointer = current_pointer;
 
-        while (current_block[length] < (size + 2)) {
-            let previous_block = current_block;
-            let current_block = current_block[next];
-            if (current_block = null) {
+        while (~(current_pointer[length] > size)) {
+            let previous_pointer = current_pointer;
+            let current_pointer = current_pointer[next];
+            if (current_pointer = null) {
+                do Output.printInt(size);
+                do Output.println();
                 return -1;  // 失敗
             }
         }
 
-        let block = current_block[3];
-        let previous_block[next] = current_block[next];
+        let block = current_pointer + 1;
+        let previous_pointer[next] = current_pointer[next];
 
         let block[-1] = size + 1;
 
@@ -79,7 +77,7 @@ class Memory {
         var Array segment;
 
         let segment = o - 1;
-        let segment[0] = o[-1];
+        let segment[length] = o[-1];
 
         let segment[next] = freeList[next];
         let freeList[next] = segment;
