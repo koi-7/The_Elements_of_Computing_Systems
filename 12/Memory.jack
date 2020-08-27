@@ -48,38 +48,41 @@ class Memory {
     /** Finds an available RAM block of the given size and returns
      *  a reference to its base address. */
     function int alloc(int size) {
-        var Array current_pointer, previous_pointer, new_pointer, block;
+        var Array current_ptr, previous_ptr, new_ptr, block;
         var int new_length;
 
-        let current_pointer = freeList;
-        let previous_pointer = current_pointer;
+        let current_ptr = freeList;
+        let previous_ptr = current_ptr;
 
-        while (~(current_pointer[length] > size)) {
-            let previous_pointer = current_pointer;
-            let current_pointer = current_pointer[next];
-            if (current_pointer = null) {
-                do Output.printInt(size);
-                do Output.println();
+        while (~(current_ptr[length] > (size + 2))) {
+            let previous_ptr = current_ptr;
+            let current_ptr = current_ptr[next];
+            if (current_ptr = null) {
+                //do Output.printInt(size);
+                //do Output.println();
                 return -1;  // 失敗
             }
         }
 
-        let block = current_pointer + 1;
+        // 空き領域発見
+        let block = current_ptr + current_ptr[length] - size;
+        let current_ptr[length] = current_ptr[length] - (size + 1);
 
-        if (current_pointer[next] = null) {
-            let new_length = current_pointer[length] - (size + 1);
-            let current_pointer[length] = size + 1;
-            let current_pointer[next] = current_pointer + size + 1;
-            let new_pointer = current_pointer[next];
-            let new_pointer[length] = new_length;
-            let new_pointer[next] = null;
-        }
 
-        if (previous_pointer = current_pointer) {
-            let freeList = freeList[next];
-        } else {
-            let previous_pointer[next] = current_pointer[next];
-        }
+        //if (current_ptr[next] = null) {
+        //    let new_length = current_ptr[length] - (size + 1);
+        //    let current_ptr[length] = size + 1;
+        //    let current_ptr[next] = current_ptr + size + 1;
+        //    let new_ptr = current_ptr[next];
+        //    let new_ptr[length] = new_length;
+        //    let new_ptr[next] = null;
+        //}
+
+        //if (previous_ptr = current_ptr) {
+        //    let freeList = freeList[next];
+        //} else {
+        //    let previous_ptr[next] = current_ptr[next];
+        //}
 
         let block[-1] = size + 1;
 
