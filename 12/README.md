@@ -35,3 +35,25 @@
 ### readLine、readInt
 
 readLine が実装できれば readInt もほとんど同じように実装できる。String から int への変換には String.intValue を用いればよい。
+
+## Memory
+
+### alloc
+
+配列の名前がその配列の先頭のポインタをさすことを意識する。このポインタは数値を加えることで好きな場所を指すことができる。また、他の変数に代入を行えばその変数は同じポインタを指す。
+
+![](https://user-images.githubusercontent.com/61448492/91385692-737e7200-e86c-11ea-95a4-183798d1dbc9.png)
+
+変数として「今注目している空きへの空間ポインタ（current_pointer）」、「そのひとつ手前の空き空間へのポインタ（previous_pointer）」を用意する。
+
+current_pointer の length を見ながら size より大きい空き空間が見つかるまで freeList を走査する（first-fit）。
+
+![](https://user-images.githubusercontent.com/61448492/91388371-200f2280-e872-11ea-89ee-56bc45786333.png)
+
+freeList の一番最後の要素をブロックにした場合、(size + 1) 分の領域のみを切り出し、余った部分を freeList につなげる。
+
+![](https://user-images.githubusercontent.com/61448492/91388420-3b7a2d80-e872-11ea-8c4c-3805cd58e586.png)
+
+### deAlloc
+
+解放した領域は freeList の先頭にもってくる。
