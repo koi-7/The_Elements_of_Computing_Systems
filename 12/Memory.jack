@@ -48,7 +48,8 @@ class Memory {
     /** Finds an available RAM block of the given size and returns
      *  a reference to its base address. */
     function int alloc(int size) {
-        var Array current_pointer, previous_pointer, block;
+        var Array current_pointer, previous_pointer, new_pointer, block;
+        var int new_length;
 
         let current_pointer = freeList;
         let previous_pointer = current_pointer;
@@ -64,7 +65,21 @@ class Memory {
         }
 
         let block = current_pointer + 1;
-        let previous_pointer[next] = current_pointer[next];
+
+        if (current_pointer[next] = null) {
+            let new_length = current_pointer[length] - (size + 1);
+            let current_pointer[length] = size + 1;
+            let current_pointer[next] = current_pointer + size + 1;
+            let new_pointer = current_pointer[next];
+            let new_pointer[length] = new_length;
+            let new_pointer[next] = null;
+        }
+
+        if (previous_pointer = current_pointer) {
+            let freeList = freeList[next];
+        } else {
+            let previous_pointer[next] = current_pointer[next];
+        }
 
         let block[-1] = size + 1;
 
