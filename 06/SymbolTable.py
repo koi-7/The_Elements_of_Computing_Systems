@@ -3,10 +3,10 @@
 
 class SymbolTable:
     def __init__(self):
-        '''
+        """
         空のシンボルテーブルを作成する
         void -> void
-        '''
+        """
         self.table = {
             'SP':     0,
             'LCL':    1,
@@ -34,22 +34,22 @@ class SymbolTable:
         }
 
     def addEntry(self, symbol, address):
-        '''
+        """
         テーブルに (symbol, address) のペアを追加する
         str, int -> void
-        '''
+        """
         self.table[symbol] = address
 
     def contains(self, symbol):
-        '''
+        """
         シンボルテーブルは与えられた symbol を含むか？
         str -> bool
-        '''
+        """
         return symbol in self.table
 
     def getAddress(self, symbol):
-        '''
+        """
         symbol に結びつけられたアドレスを返す
         str -> int
-        '''
+        """
         return self.table[symbol]

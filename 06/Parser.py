@@ -15,11 +15,10 @@ l_pattern = r'\(([a-zA-z_.$0-9]+)\)'
 
 class Parser:
     def __init__(self, filename):
-        '''
+        """
         入力ファイル / ストリームを開きパースを行う準備をする
-        in:  str
-        out: void
-        '''
+        str -> void
+        """
         self.command = ''
         self.f = open(filename, 'rt')
 
@@ -31,11 +30,10 @@ class Parser:
 
 
     def hasMoreCommands(self):
-        '''
+        """
         入力にまだコマンドが存在するか？
-        in:  void
-        out: bool
-        '''
+        void -> bool
+        """
         while True:
             line = self.f.readline()
             if line == '':
@@ -47,22 +45,20 @@ class Parser:
                 return True
 
     def advance(self):
-        '''
+        """
         入力から次のコマンドを読み、それを現在のコマンドにする
-        in:  void
-        out: void
-        '''
+        void -> void
+        """
         line = self.command                   ## '  dest=comp;jump    // comment\n'
         line = self.command.replace(' ', '')  ## 'dest=comp;jump//comment\n'
         line_list = line.split('//')
         self.command = line_list[0].strip()  ## コメントの有無に関係なく先頭要素
 
     def commandType(self):
-        '''
+        """
         現コマンドの種類を返す
-        in:  void
-        out: A_COMMAND, C_COMMAND, L_COMMAND
-        '''
+        void -> A_COMMAND | C_COMMAND | L_COMMAND
+        """
         if re.match(a_pattern, self.command):
             return A_COMMAND
         elif re.match(l_pattern, self.command):
@@ -71,11 +67,10 @@ class Parser:
             return C_COMMAND
 
     def symbol(self):
-        '''
+        """
         現コマンドのシンボルもしくは10進数の数値を返す
-        in:  void
-        out: str
-        '''
+        void -> str
+        """
         if self.commandType() == A_COMMAND:    ## @Xxx
             pattern = a_pattern
         elif self.commandType() == L_COMMAND:  ## (Xxx)
@@ -85,11 +80,10 @@ class Parser:
         return m.group(1)
 
     def dest(self):
-        '''
+        """
         現 C 命令の dest ニーモニックを返す
-        in:  void
-        out: str
-        '''
+        void -> str
+        """
         m = self.command.split('=')
         if len(m) == 1:
             return ''
@@ -97,11 +91,10 @@ class Parser:
             return m[0]
 
     def comp(self):
-        '''
+        """
         現 C 命令の comp ニーモニックを返す
-        in:  void
-        out: str
-        '''
+        void -> str
+        """
         m1 = self.command.split('=')
         if len(m1) == 1:
             m2 = m1[0].split(';')
@@ -110,11 +103,10 @@ class Parser:
         return m2[0]
 
     def jump(self):
-        '''
+        """
         現 C 命令の jump ニーモニックを返す
-        in:  void
-        out: str
-        '''
+        void -> str
+        """
         m = self.command.split(';')
         if len(m) == 1:
             return ''
