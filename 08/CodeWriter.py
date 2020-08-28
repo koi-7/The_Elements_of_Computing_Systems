@@ -21,26 +21,26 @@ segment_dict = {
 
 class CodeWriter:
     def __init__(self, output_file):
-        '''
+        """
         出力ファイル / ストリームを開き、書き込む準備を行う
         str -> void
-        '''
+        """
         self.input_file = ''
         self.f = open(output_file, 'wt')
 
     def setFileName(self, fileName):
-        '''
+        """
         CodeWriter モジュールに新しい VM ファイルの変換が開始したことを知らせる
         str -> void
-        '''
+        """
         fname = os.path.basename(fileName)
         self.input_file = fname.replace('.vm', '')
 
     def writeInit(self):
-        '''
+        """
         VM の初期化を行うアセンブリコードを書く
         void -> void
-        '''
+        """
         global function_name
 
         ## SP=256
@@ -55,10 +55,10 @@ class CodeWriter:
             self.writeCall('Sys.init', 0)
 
     def writeArithmetic(self, command):
-        '''
+        """
         与えられた算術コマンドをアセンブリコードに変換し、それを書き込む
         str -> void
-        '''
+        """
         global jump_number
 
         if command == 'add':
@@ -199,10 +199,10 @@ class CodeWriter:
             self.f.write('M=M+1' + '\n')
 
     def writePushPop(self, command, segment, index):
-        '''
+        """
         C_PUSH または C_POP コマンドをアセンブリコードに変換し、それを書き込む
         str, str, int -> void
-        '''
+        """
 
         global segment_dict
 
@@ -286,20 +286,20 @@ class CodeWriter:
                 self.f.write('M=D'          + '\n')
 
     def writeLabel(self, label):
-        '''
+        """
         label コマンドを行うアセンブリコードを書く
         str -> void
-        '''
+        """
         global function_name
 
         self.f.write('// label \n')
         self.f.write('(' + function_name + '$' + label + ')' + '\n')
 
     def writeGoto(self, label):
-        '''
+        """
         goto コマンドを行うアセンブリコードを書く
         str -> void
-        '''
+        """
         global function_name
 
         self.f.write('// goto ' + label + '\n')
@@ -307,10 +307,10 @@ class CodeWriter:
         self.f.write('0;JMP'                           + '\n')
 
     def writeIf(self, label):
-        '''
+        """
         if-goto コマンドを行うアセンブリコードを書く
         str -> void
-        '''
+        """
         global function_name
 
         self.f.write('// if-goto \n')
@@ -322,10 +322,10 @@ class CodeWriter:
         self.f.write('D;JNE'                           + '\n')
 
     def writeCall(self, functionName, numArgs):
-        '''
+        """
         call コマンドを行うアセンブリコードを書く
         str, int -> void
-        '''
+        """
         global return_addr_number, function_name
 
         return_addr_label = 'return_address' + str(return_addr_number)
@@ -388,10 +388,10 @@ class CodeWriter:
         self.f.write('(' + return_addr_label + ')' + '\n')
 
     def writeReturn(self):
-        '''
+        """
         return コマンドを行うアセンブリコードを書く
         void -> void
-        '''
+        """
         self.f.write('// return \n')
         ## FRAME = LCL
         self.f.write('@LCL'   + '\n')
@@ -452,10 +452,10 @@ class CodeWriter:
         self.f.write('0;JMP' + '\n')
 
     def writeFunction(self, functionName, numLocals):
-        '''
+        """
         function コマンドを行うアセンブリコードを書く
         str, int -> void
-        '''
+        """
         global function_name
 
         function_name = functionName
@@ -465,8 +465,8 @@ class CodeWriter:
             self.writePushPop(ps.C_PUSH, 'constant', 0)
 
     def close(self):
-        '''
+        """
         出力ファイルを閉じる
         void -> void
-        '''
+        """
         self.f.close()
