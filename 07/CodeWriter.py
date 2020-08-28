@@ -5,10 +5,10 @@ jump_addr = 0
 
 class CodeWriter:
     def __init__(self, filename):
-        '''
+        """
         出力ファイル / ストリームを開き、書き込む準備を行う
         str -> void
-        '''
+        """
         self.f = open(filename, 'wt')
 
         self.f.write('@256' + '\n')
@@ -17,17 +17,17 @@ class CodeWriter:
         self.f.write('M=D'  + '\n')
 
     def setFileName(self, fileName):
-        '''
+        """
         CodeWriter モジュールに新しい VM ファイルの変換が開始したことを知らせる
         str -> void
-        '''
+        """
         pass
 
     def writeArithmetic(self, command):
-        '''
+        """
         与えられた算術コマンドをアセンブリコードに変換し、それを書き込む
         str -> void
-        '''
+        """
         global jump_addr
 
         self.f.write('\n')
@@ -170,10 +170,10 @@ class CodeWriter:
             self.f.write('M=M+1' + '\n')
 
     def writePushPop(self, command, segment, index):
-        '''
+        """
         C_PUSH または C_POP コマンドをアセンブリコードに変換し、それを書き込む
         str, str, int -> void
-        '''
+        """
         segment_dict = {
             'local':    1,  ## LCL
             'argument': 2,  ## ARG,
@@ -277,8 +277,8 @@ class CodeWriter:
                 self.f.write('M=M-1'                          + '\n')
 
     def close(self):
-        '''
+        """
         出力ファイルを閉じる
         void -> void
-        '''
+        """
         self.f.close()
