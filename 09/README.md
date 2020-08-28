@@ -8,15 +8,6 @@ java がない場合は事前に入れておく
 $ sudo apt install openjdk-8-jdk
 ```
 
-```tools/OS/``` ディレクトリ内の .vm ファイルをコンパイルしたい .jack ファイルがあるディレクトリにコピーしておく
-
-```
-tools$ cp ./OS/*.vm ../projects/09/HelloWorld/
-tools$ ls ../projects/09/HelloWorld/
-Array.vm     Main.jack  Math.vm    Output.vm  String.vm
-Keyboard.vm  Main.vm    Memory.vm  Screen.vm  Sys.vm
-```
-
 コンパイルを行う
 
 ```
