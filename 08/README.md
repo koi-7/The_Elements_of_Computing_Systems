@@ -1,5 +1,9 @@
 # 8章 バーチャルマシン#2：プログラム制御
 
+## 使用法
+
+```$ ./VMtranslator.py <vm ファイル>```
+
 ## SimpleFunction
 
 - return
@@ -20,9 +24,9 @@ A=M
 ## FibonacciElement
 
 - 図8-5を見ながら記述
-- ```CodeWriter.writeInit()``` でブートストラップコードを記述する
+- CodeWriter.writeInit() でブートストラップコードを記述する
   - VM 変換器に渡されたものがディレクトリであれば ```SP=256``` に加えて ```call Sys.init``` を表現するアセンブリコードを記述する
-  - ```CodeWriter.writeInit()``` は引数を取らないため、```call Sys.init``` を記述するかどうかのヒントを各自で用意する必要がある
+  - CodeWriter.writeInit() は引数を取らないため、```call Sys.init``` を記述するかどうかのヒントを各自で用意する必要がある
     - .vm ファイルが複数あるときに Sys.vm がどの順番で読み込まれるかわからないので入力ファイルのリストを作るついでに Sys.vm がリストの先頭にくるようにした
     - 最初に読み込まれたファイルが Sys.vm かそうでないかで場合分けを行った
 
