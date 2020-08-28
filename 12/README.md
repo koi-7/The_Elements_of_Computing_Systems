@@ -46,9 +46,13 @@ readLine が実装できれば readInt もほとんど同じように実装で�
 
 変数として「今注目している空きへの空間ポインタ（current_pointer）」、「そのひとつ手前の空き空間へのポインタ（previous_pointer）」を用意する。
 
-current_pointer の length を見ながら size より大きい空き空間が見つかるまで freeList を走査する（first-fit）。
+current_pointer の length を見ながら size より大きい空き空間が見つかるまで freeList た辿る（first-fit）。
 
 ![](https://user-images.githubusercontent.com/61448492/91388371-200f2280-e872-11ea-89ee-56bc45786333.png)
+
+空き空間が見つかれば block を確保する。block が current_ptr[next] に食い込む場合（current_ptr[length] = size + 1）や block の確保によって current_ptr[lentgth] が 0 になる場合（current_ptr = size + 2）、その領域を飛ばすように freeList を更新する。
+
+![](https://user-images.githubusercontent.com/61448492/91523906-d89f9980-e938-11ea-902c-d6260f7747e0.png)
 
 ### deAlloc
 
