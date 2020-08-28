@@ -54,17 +54,20 @@ class Memory {
         let current_ptr = freeList;
         let previous_ptr = current_ptr;
 
-        while (~(current_ptr[length] > (size + 2))) {
+        while (~(current_ptr[length] > size)) {
             let previous_ptr = current_ptr;
             let current_ptr = current_ptr[next];
             if (current_ptr = null) {
-                //do Output.printInt(size);
-                //do Output.println();
                 return -1;  // 失敗
             }
         }
 
         let block = current_ptr + current_ptr[length] - size;
+
+        if (current_ptr[length] < (size + 3)) {
+            let previous_ptr[next] = current_ptr[next];
+        }
+
         let current_ptr[length] = current_ptr[length] - (size + 1);
 
         let block[-1] = size + 1;
